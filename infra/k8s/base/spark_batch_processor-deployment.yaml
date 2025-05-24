@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-batch-processor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-batch-processor
+  template:
+    metadata:
+      labels:
+        app: spark-batch-processor
+    spec:
+      containers:
+      - name: spark-batch-processor
+        image: "{{ SPARK_BATCH_PROCESSOR_IMAGE }}"
+        command: ["python", "batch_processor.py"]

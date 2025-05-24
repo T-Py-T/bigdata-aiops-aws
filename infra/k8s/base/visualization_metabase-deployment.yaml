@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visualization-metabase
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: visualization-metabase
+  template:
+    metadata:
+      labels:
+        app: visualization-metabase
+    spec:
+      containers:
+      - name: visualization-metabase
+        image: "{{ VISUALIZATION_METABASE_IMAGE }}"

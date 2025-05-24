@@ -1,0 +1,2 @@
+metabase:
+  config: /app/metabase_config.yml

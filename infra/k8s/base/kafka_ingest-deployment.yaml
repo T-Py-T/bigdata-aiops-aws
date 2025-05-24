@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-ingest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka-ingest
+  template:
+    metadata:
+      labels:
+        app: kafka-ingest
+    spec:
+      containers:
+      - name: kafka-ingest
+        image: "{{ KAFKA_INGEST_IMAGE }}"
+        ports:
+        - containerPort: 8000
+        env:
+          - name: KAFKA_BROKER
+            value: "{{ KAFKA_BROKER }}"

@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visualization-superset
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: visualization-superset
+  template:
+    metadata:
+      labels:
+        app: visualization-superset
+    spec:
+      containers:
+      - name: visualization-superset
+        image: "{{ VISUALIZATION_SUPERSET_IMAGE }}"

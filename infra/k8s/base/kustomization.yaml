@@ -1,0 +1,46 @@
+resources:
+  - kafka_ingest-deployment.yaml
+  - python_stream_processor-deployment.yaml
+  - spark_batch_processor-deployment.yaml
+  - realtime_processor-deployment.yaml
+  - ksqdb_connector-deployment.yaml
+  - serving_trino-deployment.yaml
+  - visualization_superset-deployment.yaml
+  - visualization_metabase-deployment.yaml
+  - data_catalog-deployment.yaml
+  - airflow-deployment.yaml
+  - prometheus.yaml
+  - grafana.yaml
+
+# Define image placeholders. Actual image names/tags will be updated by overlays.
+images:
+  - name: {{ KAFKA_INGEST_IMAGE }}
+    newName: {{ KAFKA_INGEST_IMAGE }}
+    newTag: "latest"
+  - name: {{ PYTHON_STREAM_PROCESSOR_IMAGE }}
+    newName: {{ PYTHON_STREAM_PROCESSOR_IMAGE }}
+    newTag: "latest"
+  - name: {{ SPARK_BATCH_PROCESSOR_IMAGE }}
+    newName: {{ SPARK_BATCH_PROCESSOR_IMAGE }}
+    newTag: "latest"
+  - name: {{ REALTIME_PROCESSOR_IMAGE }}
+    newName: {{ REALTIME_PROCESSOR_IMAGE }}
+    newTag: "latest"
+  - name: {{ KSQLDB_CONNECTOR_IMAGE }}
+    newName: {{ KSQLDB_CONNECTOR_IMAGE }}
+    newTag: "latest"
+  - name: {{ SERVING_TRINO_IMAGE }}
+    newName: {{ SERVING_TRINO_IMAGE }}
+    newTag: "latest"
+  - name: {{ VISUALIZATION_SUPERSET_IMAGE }}
+    newName: {{ VISUALIZATION_SUPERSET_IMAGE }}
+    newTag: "latest"
+  - name: {{ VISUALIZATION_METABASE_IMAGE }}
+    newName: {{ VISUALIZATION_METABASE_IMAGE }}
+    newTag: "latest"
+  - name: {{ DATA_CATALOG_IMAGE }}
+    newName: {{ DATA_CATALOG_IMAGE }}
+    newTag: "latest"
+  - name: {{ AIRFLOW_IMAGE }}
+    newName: {{ AIRFLOW_IMAGE }}
+    newTag: "latest"

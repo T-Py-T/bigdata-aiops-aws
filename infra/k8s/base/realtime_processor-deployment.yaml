@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: realtime-processor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: realtime-processor
+  template:
+    metadata:
+      labels:
+        app: realtime-processor
+    spec:
+      containers:
+      - name: realtime-processor
+        image: "{{ REALTIME_PROCESSOR_IMAGE }}"
+        command: ["python", "realtime_processor.py"]

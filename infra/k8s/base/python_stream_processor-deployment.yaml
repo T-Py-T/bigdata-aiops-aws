@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-stream-processor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-stream-processor
+  template:
+    metadata:
+      labels:
+        app: python-stream-processor
+    spec:
+      containers:
+      - name: python-stream-processor
+        image: "{{ PYTHON_STREAM_PROCESSOR_IMAGE }}"
+        command: ["python", "processor.py"]

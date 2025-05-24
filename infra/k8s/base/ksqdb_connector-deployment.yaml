@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ksqdb-connector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ksqdb-connector
+  template:
+    metadata:
+      labels:
+        app: ksqdb-connector
+    spec:
+      containers:
+      - name: ksqdb-connector
+        image: "{{ KSQLDB_CONNECTOR_IMAGE }}"
+        command: ["python", "connector.py"]

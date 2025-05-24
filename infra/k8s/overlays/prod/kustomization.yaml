@@ -1,0 +1,27 @@
+bases:
+  - ../../base
+
+patchesStrategicMerge:
+  - patch.yaml
+
+images:
+  - name: {{ KAFKA_INGEST_IMAGE }}
+    newTag: "prod"
+  - name: {{ PYTHON_STREAM_PROCESSOR_IMAGE }}
+    newTag: "prod"
+  - name: {{ SPARK_BATCH_PROCESSOR_IMAGE }}
+    newTag: "prod"
+  - name: {{ REALTIME_PROCESSOR_IMAGE }}
+    newTag: "prod"
+  - name: {{ KSQLDB_CONNECTOR_IMAGE }}
+    newTag: "prod"
+  - name: {{ SERVING_TRINO_IMAGE }}
+    newTag: "prod"
+  - name: {{ VISUALIZATION_SUPERSET_IMAGE }}
+    newTag: "prod"
+  - name: {{ VISUALIZATION_METABASE_IMAGE }}
+    newTag: "prod"
+  - name: {{ DATA_CATALOG_IMAGE }}
+    newTag: "prod"
+  - name: {{ AIRFLOW_IMAGE }}
+    newTag: "prod"
