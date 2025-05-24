@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-catalog
+  template:
+    metadata:
+      labels:
+        app: data-catalog
+    spec:
+      containers:
+      - name: data-catalog
+        image: "{{ DATA_CATALOG_IMAGE }}"

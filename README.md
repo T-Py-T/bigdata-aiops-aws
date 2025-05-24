@@ -1,146 +1,272 @@
-# Predicting how a customer will feel about a product before they even ordered it
+# Modern Data Engineering Pipeline Project
 
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/zenml)](https://pypi.org/project/zenml/)
+# Modern Data Engineering Pipeline Project
 
-**Problem statement**: For a given customer's historical data, we are tasked to predict the review score for the next order or purchase. We will be using the [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce). This dataset has information on 100,000 orders from 2016 to 2018 made at multiple marketplaces in Brazil. Its features allow viewing charges from various dimensions: from order status, price, payment, freight performance to customer location, product attributes and finally, reviews written by customers. The objective here is to predict the customer satisfaction score for a given order based on features like order status, price, payment, etc. In order to achieve this in a real-world scenario, we will be using [ZenML](https://zenml.io/) to build a production-ready pipeline to predict the customer satisfaction score for the next order or purchase.
+## Overview
+This project demonstrates a comprehensive, end-to-end data engineering pipeline that leverages industry-leading, open-source technologies and cloud-native tools to solve real-world data challenges. The solution ingests data from diverse sources (APIs, MSSQL, etc.), processes streaming data in real time using Kafka and Spark Structured Streaming, and performs batch processing on S3 data with Apache Spark. Advanced transformations are achieved with ksqlDB (integrated with Pinot and Elastic), while processed data is served through Trino. Visual insights are delivered via Superset and Metabase, and the entire workflow is orchestrated with Airflow. Infrastructure is managed with Terraform on AWS EKS and continuously deployed via ArgoCD, with robust observability provided by Prometheus and Grafana. A DataHub catalog rounds out the project, ensuring comprehensive data governance. This project is designed to showcase technical proficiency across the modern data stack and to serve as a portfolio piece for aspiring data engineering professionals.
 
-The purpose of this repository is to demonstrate how [ZenML](https://github.com/zenml-io/zenml) empowers your business to build and deploy machine learning pipelines in a multitude of ways:
+## Technologies
+- **Data Ingestion & Messaging:** Kafka, ksqlDB  
+- **Stream & Batch Processing:** Apache Spark (Structured Streaming & Batch), Python  
+- **Storage & Serving:** AWS S3, Trino, Pinot, Elastic  
+- **Visualization:** Superset, Metabase  
+- **Orchestration & Deployment:** Airflow, ArgoCD, Terraform (AWS EKS)  
+- **Observability & Cataloging:** Prometheus, Grafana, DataHub  
 
-- By offering you a framework and template to base your own work on.
-- By integrating with tools like [MLflow](https://mlflow.org/) for deployment, tracking and more
-- By allowing you to build and deploy your machine learning pipelines easily
+## Project Structure
+├── services
+│   ├── data_catalog/
+│   ├── kafka_ingest/
+│   ├── ksqdb_connector/
+│   ├── python_stream_processor/
+│   ├── realtime_processor/
+│   ├── serving_trino/
+│   ├── spark_batch_processor/
+│   ├── visualization_metabase/
+|   └── visualization_superset/
+|
+└── infra
+    ├── airflow
+    |   ├── dags/
+    ├── argo-cd/
+    ├── k8s
+    |   ├── base/
+    |   └── overlays/
+    └── terraform/
 
-## :snake: Python Requirements
+## Installation & Deployment
 
-Let's jump into the Python packages you need. Within the Python environment of your choice, run:
-
-```bash
-git clone https://github.com/zenml-io/zenml-projects.git
-cd zenml-projects/customer-satisfaction
-pip install -r requirements.txt
-```
-
-Starting with ZenML 0.20.0, ZenML comes bundled with a React-based dashboard. This dashboard allows you
-to observe your stacks, stack components and pipeline DAGs in a dashboard interface. To access this, you need to [launch the ZenML Server and Dashboard locally](https://docs.zenml.io/user-guide/starter-guide#explore-the-dashboard), but first you must install the optional dependencies for the ZenML server:
-
-```bash
-pip install zenml["server"]
-zenml up
-```
-
-If you are running the `run_deployment.py` script, you will also need to install some integrations using ZenML:
-
-```bash
-zenml integration install mlflow -y
-```
-
-The project can only be executed with a ZenML stack that has an MLflow experiment tracker and model deployer as a component. Configuring a new stack with the two components are as follows:
-
-```bash
-zenml integration install mlflow -y
-zenml experiment-tracker register mlflow_tracker --flavor=mlflow
-zenml model-deployer register mlflow --flavor=mlflow
-zenml stack register mlflow_stack -a default -o default -d mlflow -e mlflow_tracker --set
-```
-
-## 📙 Resources & References
-
-We had written a blog that explains this project in-depth: [Predicting how a customer will feel about a product before they even ordered it](https://blog.zenml.io/customer_satisfaction/).
-
-If you'd like to watch the video that explains the project, you can watch the [video](https://youtu.be/L3_pFTlF9EQ).
-
-## :thumbsup: The Solution
-
-In order to build a real-world workflow for predicting the customer satisfaction score for the next order or purchase (which will help make better decisions), it is not enough to just train the model once.
-
-Instead, we are building an end-to-end pipeline for continuously predicting and deploying the machine learning model, alongside a data application that utilizes the latest deployed model for the business to consume.
-
-This pipeline can be deployed to the cloud, scale up according to our needs, and ensure that we track the parameters and data that flow through every pipeline that runs. It includes raw data input, features, results, the machine learning model and model parameters, and prediction outputs. ZenML helps us to build such a pipeline in a simple, yet powerful, way.
-
-In this Project, we give special consideration to the [MLflow integration](https://github.com/zenml-io/zenml/tree/main/examples) of ZenML. In particular, we utilize MLflow tracking to track our metrics and parameters, and MLflow deployment to deploy our model. We also use [Streamlit](https://streamlit.io/) to showcase how this model will be used in a real-world setting.
-
-### Training Pipeline
-
-Our standard training pipeline consists of several steps:
-
-- `ingest_data`: This step will ingest the data and create a `DataFrame`.
-- `clean_data`: This step will clean the data and remove the unwanted columns.
-- `train_model`: This step will train the model and save the model using [MLflow autologging](https://www.mlflow.org/docs/latest/tracking.html).
-- `evaluation`: This step will evaluate the model and save the metrics -- using MLflow autologging -- into the artifact store.
-
-### Deployment Pipeline
-
-We have another pipeline, the `deployment_pipeline.py`, that extends the training pipeline, and implements a continuous deployment workflow. It ingests and processes input data, trains a model and then (re)deploys the prediction server that serves the model if it meets our evaluation criteria. The criteria that we have chosen is a configurable threshold on the [MSE](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.mean_squared_error.html) of the training. The first four steps of the pipeline are the same as above, but we have added the following additional ones:
-
-- `deployment_trigger`: The step checks whether the newly trained model meets the criteria set for deployment.
-- `model_deployer`: This step deploys the model as a service using MLflow (if deployment criteria is met).
-
-In the deployment pipeline, ZenML's MLflow tracking integration is used for logging the hyperparameter values and the trained model itself and the model evaluation metrics -- as MLflow experiment tracking artifacts -- into the local MLflow backend. This pipeline also launches a local MLflow deployment server to serve the latest MLflow model if its accuracy is above a configured threshold.
-
-The MLflow deployment server runs locally as a daemon process that will continue to run in the background after the example execution is complete. When a new pipeline is run which produces a model that passes the accuracy threshold validation, the pipeline automatically updates the currently running MLflow deployment server to serve the new model instead of the old one.
-
-To round it off, we deploy a Streamlit application that consumes the latest model service asynchronously from the pipeline logic. This can be done easily with ZenML within the Streamlit code:
-
-```python
-service = prediction_service_loader(
-   pipeline_name="continuous_deployment_pipeline",
-   pipeline_step_name="mlflow_model_deployer_step",
-   running=False,
-)
-...
-service.predict(...)  # Predict on incoming data from the application
-```
-
-While this ZenML Project trains and deploys a model locally, other ZenML integrations such as the [Seldon](https://github.com/zenml-io/zenml/tree/main/examples/seldon_deployment) deployer can also be used in a similar manner to deploy the model in a more production setting (such as on a Kubernetes cluster). We use MLflow here for the convenience of its local deployment.
-
-![training_and_deployment_pipeline](_assets/training_and_deployment_pipeline_updated.png)
-
-## :notebook: Diving into the code
-
-You can run two pipelines as follows:
-
-- Training pipeline:
-
-```bash
-python run_pipeline.py
-```
-
-- The continuous deployment pipeline:
-
-```bash
-python run_deployment.py
-```
-
-## 🕹 Demo Streamlit App
-
-There is a live demo of this project using [Streamlit](https://streamlit.io/) which you can find [here](https://share.streamlit.io/ayush714/customer-satisfaction/main). It takes some input features for the product and predicts the customer satisfaction rate using the latest trained models. If you want to run this Streamlit app in your local system, you can run the following command:-
-
-```bash
-streamlit run streamlit_app.py
-```
-
-## :question: FAQ
-
-1. When running the continuous deployment pipeline, I get an error stating: `No Step found for the name mlflow_deployer`.
-
-   Solution: It happens because your artifact store is overridden after running the continuous deployment pipeline. So, you need to delete the artifact store and rerun the pipeline. You can get the location of the artifact store by running the following command:
-
-   ```bash
-   zenml artifact-store describe
+1. **Clone the Repository:**  
+   ``` bash
+   git clone {{ REPO_URL }}
+   cd {{ PROJECT_NAME }}
    ```
 
-   and then you can delete the artifact store with the following command:
+docker build -t {{ IMAGE_NAME }} .
 
-   **Note**: This is a dangerous / destructive command! Please enter your path carefully, otherwise it may delete other folders from your computer.
+kubectl apply -k infra/k8s/overlays/dev
 
-   ```bash
-   rm -rf PATH
-   ```
+cd infra/terraform
+terraform init
+terraform apply
 
-2. When running the continuous deployment pipeline, I get the following error: `No Environment component with name mlflow is currently registered.`
+## Usage
+Data Ingestion:
+Access the Kafka ingestion endpoint at http://<kafka_ingest_service>:8000/ingest.
 
-   Solution: You forgot to install the MLflow integration in your ZenML environment. So, you need to install the MLflow integration by running the following command:
+Processing:
+Monitor the real-time streaming and batch processing jobs through Spark and Airflow dashboards.
 
-   ```bash
-   zenml integration install mlflow -y
-   ```
+Visualization:
+Use Superset and Metabase to explore processed data and generate interactive reports.
+
+### Application Architecture
+
+<!-- Each of the 11 microservices written in different languages that talk to each other over gRPC.
+
+[![Architecture of microservices](/docs/img/architecture-diagram.png)](/docs/img/architecture-diagram.png)
+
+Find **Protocol Buffers Descriptions** at the [`./protos` directory](/protos).
+
+| Service | Language |   Description     |
+| -------| --------| -------- |
+| [frontend](/src/frontend) | Go    | Exposes an HTTP server to serve the website. Does not require signup/login and generates session IDs for all users automatically. |
+| [cartservice](/src/cartservice) | C#  | Stores the items in the user's shopping cart in Redis and retrieves it.   |
+| [productcatalogservice](/src/productcatalogservice) | Go   | Provides the list of products from a JSON file and ability to search products and get individual products.  |
+| [currencyservice](/src/currencyservice) | Node.js   | Converts one money amount to another currency. Uses real values fetched from European Central Bank. It's the highest QPS service. |
+| [paymentservice](/src/paymentservice)  | Node.js       | Charges the given credit card info (mock) with the given amount and returns a transaction ID.                                     |
+| [shippingservice](/src/shippingservice)             | Go            | Gives shipping cost estimates based on the shopping cart. Ships items to the given address (mock)                                 |
+| [emailservice](/src/emailservice)                   | Python        | Sends users an order confirmation email (mock).                                                                                   |
+| [checkoutservice](/src/checkoutservice)             | Go            | Retrieves user cart, prepares order and orchestrates the payment, shipping and the email notification.                            |
+| [recommendationservice](/src/recommendationservice) | Python        | Recommends other products based on what's given in the cart.                                                                      |
+| [adservice](/src/adservice)                         | Java          | Provides text ads based on given context words.                                                                                   |
+| [loadgenerator](/src/loadgenerator)                 | Python/Locust | Continuously sends requests imitating realistic user shopping flows to the frontend.     | -->
+
+### Screenshots
+
+<!-- | Home Page | Checkout Screen |
+| ------- | ----- |
+| [![Screenshot of store homepage](/docs/img/online-boutique-frontend-1.png)](/docs/img/online-boutique-frontend-1.png) | [![Screenshot of checkout screen](/docs/img/online-boutique-frontend-2.png)](/docs/img/online-boutique-frontend-2.png) | -->
+
+## Features
+
+<!-- - **[Kubernetes](https://kubernetes.io)/[AKS](https://azure.microsoft.com/en-us/products/kubernetes-service):**
+  The app is designed to run on Kubernetes (both locally on "Docker for Desktop", as well as on the cloud with AKS).
+- **[gRPC](https://grpc.io):** Microservices use a high volume of gRPC calls to communicate to each other.
+- **Synthetic Load Generation:** The application demo comes with a background job that creates realistic usage patterns on the website using [Locust](https://locust.io/) load generator. -->
+
+<!-- 
+**************** TODO SECTION 
+
+> # Note: This is a reminder to come back and update this section.
+- [ ] Add screenshots of monitoring dashboards
+- [ ] Describe log aggregation strategy
+- [ ] Combine AKS definition (2 sections)
+- [ ] Update the 
+- [ ] Add Istio config/images/section
+- [ ] Add ArgoCD Images/Section
+- [ ] Terraform Section?
+- [ ] Prometheus Section? 
+-->
+
+## Best Practices Followed
+
+### DevOps
+
+- **Automation**: The build, test, and deployment process is automated, reducing the risk of human error and speeding up the cycle times. Automation ensures that every code change is tested and validated before deployment.
+- **Security First**: Integrating Aqua Trivy ensures that security vulnerabilities and code quality issues are detected and addressed early in the pipeline, fostering a secure development lifecycle.
+- **Scalability**: Kubernetes provides a scalable infrastructure that can handle fluctuating loads, ensuring consistent performance during peak traffic.
+- **Version Control and Code Review**: GitHub serves as the foundation for collaboration and quality control, ensuring that only well-reviewed, high-quality code reaches production.
+<!-- - **Observability**: Using istio allows real-time monitoring, enabling proactive identification and resolution of potential issues before they impact users.
+- **GitOps with ArgoCD**: Using the repo monitoring of ArgoCD, we are able to detect changes in the mainfest of the repository and sync the changes into the Kubernetes environment. -->
+
+### DevSecOps
+
+- **Secrets Management**: Docker credentials are stored securely using Azure Devops variables.
+- **Static Analysis**: Trivy is used for static analysis.
+- **Build and Push Images**: Docker images are built and pushed to Docker Hub.
+- **Image Scanning**: Docker images are pulled and scanned for vulnerabilities using Trivy.
+- **Pull and Test Images**: Docker images are pulled and tested.
+
+## Architecture
+
+The CI/CD pipeline is depicted in the diagram below, which mirrors the "as-built" system, showcasing the tools and workflows utilized.
+
+![Architecture Diagram](docs/img/CICD-Architechture.png)
+
+### Key Components
+
+#### A. **Source Code Management**
+
+- **GitHub**:
+  - Serves as the backbone of version control, ensuring seamless collaboration among team members.
+  - Pull requests and branch strategies help enforce coding standards and encourage peer reviews.
+  - Integrated with Jenkins to trigger automated builds and tests upon code commits, ensuring continuous integration.
+  - Setup with the Azure Devops Project with connection to the git repository
+
+#### B. **Build and Test Automation**
+
+**Azure DevOps**:
+  - Orchestrates the CI/CD pipeline, ensuring that builds, tests, and deployments are fully automated.
+  - Integrates with tools like GitHub and Docker to create a streamlined process from code commit to deployment.
+  - Provides real-time feedback to developers about build status and test results.
+  - After successful build the pipeline will update the deployment-services.yaml
+
+  **Azure Pipelines**
+  ![CI Pipeline](docs/img/azure-pipelines.png)
+  
+  **CI Pipelines**
+  ![CI Pipeline](docs/img/ado-ci-pipelines.png)
+
+  **Updates to YAML from Pipelines**
+  ![YAML Updates](docs/img/yaml-updates.png)
+
+  **Release Pipelines**
+  ![Release Pipelines](docs/img/ado-release-pipelines.png)
+
+  **Dev AKS Deployment**
+  ![Dev Kube Status](docs/img/dev-kube.png)
+
+  **Prod AKS Deployment**
+  ![Prod Kube Status](docs/img/prod-kube.png)
+
+> **Azure DevOps - TODO**:
+    - **Regional vCPU**
+      - Constraints in allocations requried me to keep requesting additional resources.
+      - This is cost prohibitive, so 1 pod for each service is left
+    - **Update to Terraform Apply**
+      - Currently elies on external Terraform setup for environment to work
+      - When cluster is built API changes
+      - Permissions for Jenkins need to be created with cluster (kubectl)
+    - **Separate GitOps Repo**
+      - Move deployment code to its own repo instead of a branch of this repo
+
+#### C. **Security Scanning**
+
+- **Aqua Trivy**:
+  - Scans Docker docs/img and source code for vulnerabilities, ensuring that potential security issues are caught before deployment.
+  - Generates detailed reports that can be used to address vulnerabilities promptly.
+
+  **Trivy File Scan of /src/**
+
+  ![Trivy File Scan](docs/img/trivy-file-scan.png)
+
+  **Trivy Image Scan results**
+
+  ![Trivy File Scan](docs/img/trivy-iamge-scan.png)
+
+#### D. **Containerization**
+
+- **Docker**:
+  - Packages the Java application into lightweight, portable containers, ensuring consistent environments across development, testing, and production stages.
+  - Simplifies deployment by abstracting underlying infrastructure differences.
+
+#### E. **Container Orchestration**
+
+- **Azure Kubernetes Service (AKS)**:
+  - Manages the deployment and scaling of containerized applications in a highly available environment.
+  - Ensures zero downtime by automatically scaling and redistributing workloads as needed.
+  - Namespace configurations (e.g., `webapps`) isolate different parts of the system for better organization and security.
+
+<!-- REMOVE WHEN ARGO IS WORKING
+#### F. **GtiOps with ArgoCD**
+
+- **Argo Dashboard**
+  ![Argo Dashboard](docs/img/argo-dashboard.png)
+
+- **Argo Sync**
+  ![Argo Dashboard](docs/img/argo-sync.png)
+
+- **Argo Updates**
+  ![Argo Updates](docs/img/argo-updates.png)
+
+- **Argo Rollback**
+  ![Argo Rollback](docs/img/argo-rollback.png)
+-->
+
+<!-- REMOVE WHEN Monitoring IS WORKING
+#### F. **Monitoring and Observability**
+
+- **Prometheus**:
+  - Collects metrics from various components of the application and infrastructure, providing deep insights into system health and performance.
+  - Supports custom queries to detect anomalies and trigger alerts proactively.
+  ![Prometheus Image](docs/img/defaultImage.png)
+
+- **Grafana**:
+  - Provides user-friendly dashboards for visualizing Prometheus metrics.
+  - Enables stakeholders to monitor key performance indicators (KPIs) in real-time, ensuring system reliability.
+  ![Grafana Image](docs/img/defaultImage.png)
+
+  *Callout Area*: Include snapshots of Grafana dashboards and Prometheus query outputs, demonstrating the observability aspect of the pipeline.
+-->
+
+<!-- Removed Until IaC is added to the project
+#### G. **Infrastructure as Code (IaC)**
+
+- **Terraform**:
+  - Automates the provisioning and management of infrastructure required for the Kubernetes stack that hosts the Java application.
+  - Ensures infrastructure consistency and repeatability by defining it as code.
+  - The following key AWS resources are provisioned:
+    - **VPC**: Creates a virtual private cloud for network isolation.
+    - **Subnets**: Two public subnets in `us-east-1a` and `us-east-1b` availability zones.
+    - **Internet Gateway**: Provides internet access to the resources within the VPC.
+    - **Route Tables and Associations**: Configures routing for the subnets to allow public internet access.
+    - **Security Groups**: Defines rules for cluster and node communication, ensuring controlled ingress and egress.
+    - **AKS Cluster**: Deploys an Azure Kubernetes Service cluster for managing the application containers.
+    - **AKS Node Group**: Provisions a scalable worker node group with `t2.large` instances to support container workloads.
+    - **IAM Roles and Policies**: Configures roles and permissions for both the AKS cluster and node group to interact with AWS services.
+  - Facilitates rapid updates and scaling of infrastructure to match application requirements.
+
+``` bash
+terraform plan
+```
+
+![Terraform Plan](docs/img/TerraformPlan.png)
+
+``` bash
+terraform apply --auto-approve
+```
+
+![Terraform Apply](docs/img/TerraformApply.png)
+![Terraform Output](docs/img/Terraform-Output.png) 
+-->
