@@ -1,6 +1,12 @@
 #Ignore in progress items
 **/todo/* 
 
+#IDE Ignore section
+.vscode/
+.cursor/
+.idea/
+.vimrc/
+
 bin/
 pkg/
 .DS_Store
@@ -9,9 +15,7 @@ pkg/
 *.tfstate
 *.tfstate*
 *~
-.vscode/
 .vs/
-.idea
 .skaffold-*.yaml
 .kubernetes-manifests-*/
 .project
