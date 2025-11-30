@@ -1,0 +1,71 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-ingest
+  namespace: data-platform
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: kafka-ingest
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        env:
+        - name: KAFKA_BROKER
+          value: "kafka-service.data-platform.svc.cluster.local:9092"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-stream-processor
+  namespace: data-platform
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: python-stream-processor
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        env:
+        - name: KAFKA_BROKER
+          value: "kafka-service.data-platform.svc.cluster.local:9092"
+        - name: RAY_ADDRESS
+          value: "ray://ray-head-service.data-platform.svc.cluster.local:10001"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: realtime-processor
+  namespace: data-platform
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: realtime-processor
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+        env:
+        - name: KAFKA_BROKER
+          value: "kafka-service.data-platform.svc.cluster.local:9092"
+        - name: RAY_ADDRESS
+          value: "ray://ray-head-service.data-platform.svc.cluster.local:10001"
+

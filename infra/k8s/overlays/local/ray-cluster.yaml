@@ -1,0 +1,128 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ray-head-service
+  namespace: data-platform
+spec:
+  ports:
+    - name: client
+      port: 10001
+      targetPort: 10001
+    - name: dashboard
+      port: 8265
+      targetPort: 8265
+    - name: serve
+      port: 8000
+      targetPort: 8000
+  selector:
+    component: ray-head
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-head
+  namespace: data-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: ray-head
+      app: ray-cluster
+  template:
+    metadata:
+      labels:
+        component: ray-head
+        app: ray-cluster
+    spec:
+      containers:
+      - name: ray-head
+        image: rayproject/ray:2.9.0-py310
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash", "-c"]
+        args:
+          - >
+            ray start --head 
+            --port=6379 
+            --dashboard-host=0.0.0.0 
+            --dashboard-port=8265
+            --num-cpus=2
+            --block
+        ports:
+        - containerPort: 6379
+          name: gcs
+        - containerPort: 8265
+          name: dashboard
+        - containerPort: 10001
+          name: client
+        - containerPort: 8000
+          name: serve
+        env:
+        - name: RAY_GRAFANA_HOST
+          value: "http://grafana:3000"
+        - name: RAY_PROMETHEUS_HOST
+          value: "http://prometheus:9090"
+        resources:
+          requests:
+            cpu: "1000m"
+            memory: "2Gi"
+          limits:
+            cpu: "2000m"
+            memory: "4Gi"
+        volumeMounts:
+        - name: ray-logs
+          mountPath: /tmp/ray
+      volumes:
+      - name: ray-logs
+        emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-worker
+  namespace: data-platform
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      component: ray-worker
+      app: ray-cluster
+  template:
+    metadata:
+      labels:
+        component: ray-worker
+        app: ray-cluster
+    spec:
+      initContainers:
+      - name: wait-for-head
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nc -z ray-head-service 6379; do echo waiting for ray head; sleep 2; done;']
+      containers:
+      - name: ray-worker
+        image: rayproject/ray:2.9.0-py310
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash", "-c"]
+        args:
+          - >
+            ray start 
+            --address=ray-head-service:6379
+            --num-cpus=2
+            --block
+        env:
+        - name: RAY_HEAD_SERVICE
+          value: "ray-head-service"
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+          limits:
+            cpu: "1000m"
+            memory: "2Gi"
+        volumeMounts:
+        - name: ray-logs
+          mountPath: /tmp/ray
+      volumes:
+      - name: ray-logs
+        emptyDir: {}
+

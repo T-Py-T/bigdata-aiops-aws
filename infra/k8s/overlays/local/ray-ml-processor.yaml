@@ -1,0 +1,138 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ray-ml-processor-config
+  namespace: data-platform
+data:
+  processor.py: |
+    import ray
+    import json
+    import logging
+    from typing import Dict, Any
+    
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    
+    @ray.remote
+    class MLProcessor:
+        """Ray actor for processing ML workloads"""
+        
+        def __init__(self):
+            logger.info("Initializing ML Processor")
+            # Initialize your ML models here
+            self.model = None
+            
+        def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
+            """Process a single data point"""
+            logger.info(f"Processing data: {data}")
+            
+            # Add your ML processing logic here
+            # Example: prediction, classification, feature extraction, etc.
+            result = {
+                "input": data,
+                "processed": True,
+                "timestamp": data.get("timestamp"),
+                "prediction": "example_prediction"
+            }
+            
+            return result
+        
+        def batch_process(self, data_batch: list) -> list:
+            """Process a batch of data points"""
+            logger.info(f"Batch processing {len(data_batch)} items")
+            return [self.process(item) for item in data_batch]
+    
+    @ray.remote
+    def process_single_task(data: Dict[str, Any]) -> Dict[str, Any]:
+        """Stateless processing function for simple tasks"""
+        logger.info(f"Processing single task: {data}")
+        
+        # Your processing logic
+        result = {
+            "status": "completed",
+            "input_data": data,
+            "result": "processed"
+        }
+        
+        return result
+    
+    if __name__ == "__main__":
+        # Initialize Ray connection
+        ray.init(address="auto", namespace="ml-processing")
+        
+        # Example: Create ML processor actors
+        num_processors = 4
+        processors = [MLProcessor.remote() for _ in range(num_processors)]
+        
+        logger.info(f"Created {num_processors} ML processors")
+        logger.info("Ray ML Processor ready and waiting for tasks...")
+        
+        # Keep the process running
+        import time
+        while True:
+            time.sleep(10)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ray-ml-processor
+  namespace: data-platform
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ray-ml-processor
+  template:
+    metadata:
+      labels:
+        app: ray-ml-processor
+    spec:
+      initContainers:
+      - name: wait-for-ray
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nc -z ray-head-service 6379; do echo waiting for ray; sleep 2; done;']
+      containers:
+      - name: processor
+        image: rayproject/ray:2.9.0-py310
+        command: ["/bin/bash", "-c"]
+        args:
+          - >
+            pip install kafka-python &&
+            python /app/processor.py
+        env:
+        - name: RAY_ADDRESS
+          value: "ray://ray-head-service:10001"
+        - name: KAFKA_BROKER
+          value: "kafka-service:9092"
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+        volumeMounts:
+        - name: processor-code
+          mountPath: /app
+      volumes:
+      - name: processor-code
+        configMap:
+          name: ray-ml-processor-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ray-ml-processor-service
+  namespace: data-platform
+spec:
+  selector:
+    app: ray-ml-processor
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+
