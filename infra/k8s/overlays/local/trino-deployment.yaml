@@ -25,11 +25,11 @@ spec:
           name: http
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "300m"
+            memory: "256Mi"
+            cpu: "100m"
           limits:
-            memory: "1Gi"
-            cpu: "750m"
+            memory: "512Mi"
+            cpu: "250m"
 ---
 apiVersion: v1
 kind: Service
