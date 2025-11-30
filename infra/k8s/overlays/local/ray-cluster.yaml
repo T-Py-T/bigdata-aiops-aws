@@ -97,7 +97,7 @@ spec:
       initContainers:
       - name: wait-for-head
         image: busybox:1.28
-        command: ['sh', '-c', 'until nc -z ray-head-service 6379; do echo waiting for ray head; sleep 2; done;']
+        command: ['sh', '-c', 'until nc -z ray-head-service 10001; do echo waiting for ray head; sleep 2; done;']
       containers:
       - name: ray-worker
         image: rayproject/ray:2.9.0-py310
