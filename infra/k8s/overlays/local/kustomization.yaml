@@ -3,44 +3,15 @@ kind: Kustomization
 
 namespace: data-platform
 
-bases:
-  - ../../base
-
 resources:
   - namespace.yaml
   - kafka-local.yaml
-  - ray-cluster.yaml
-  - ray-ml-processor.yaml
   - storage.yaml
-
-patchesStrategicMerge:
-  - patch-local.yaml
 
 configMapGenerator:
   - name: platform-config
     literals:
       - KAFKA_BROKER=kafka-service.data-platform.svc.cluster.local:9092
-      - RAY_ADDRESS=ray://ray-head-service.data-platform.svc.cluster.local:10001
       - ENVIRONMENT=local
       - LOG_LEVEL=DEBUG
-
-replicas:
-  - name: airflow
-    count: 1
-  - name: python_stream_processor
-    count: 1
-  - name: realtime_processor
-    count: 1
-  - name: ksqdb_connector
-    count: 1
-  - name: spark_batch_processor
-    count: 1
-  - name: serving_trino
-    count: 1
-  - name: visualization_superset
-    count: 1
-  - name: visualization_metabase
-    count: 1
-  - name: data_catalog
-    count: 1
 
