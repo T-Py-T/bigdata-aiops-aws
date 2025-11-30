@@ -3,13 +3,21 @@ kind: Kustomization
 
 namespace: data-platform
 
-bases:
-  - ../../base
-
 resources:
   - namespace.yaml
   - kafka-local.yaml
   - storage.yaml
+  - ../../../infra/k8s/base/python_stream_processor-deployment.yaml
+  - ../../../infra/k8s/base/realtime_processor-deployment.yaml
+  - ../../../infra/k8s/base/ksqdb_connector-deployment.yaml
+  - ../../../infra/k8s/base/spark_batch_processor-deployment.yaml
+  - ../../../infra/k8s/base/serving_trino-deployment.yaml
+  - ../../../infra/k8s/base/visualization_superset-deployment.yaml
+  - ../../../infra/k8s/base/visualization_metabase-deployment.yaml
+  - ../../../infra/k8s/base/data_catalog-deployment.yaml
+  - ../../../infra/k8s/base/airflow-deployment.yaml
+  - ../../../infra/k8s/base/prometheus.yaml
+  - ../../../infra/k8s/base/grafana.yaml
 
 patchesStrategicMerge:
   - patch-local.yaml
