@@ -8,7 +8,6 @@ kind: Deployment
 metadata:
   name: kafka-ingest
 spec:
-  replicas: 1
   template:
     spec:
       containers:
@@ -24,13 +23,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: python_stream_processor
+  name: python-stream-processor
 spec:
-  replicas: 1
   template:
     spec:
       containers:
-      - name: python_stream_processor
+      - name: python-stream-processor
         resources:
           requests:
             memory: "128Mi"
@@ -42,13 +40,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: realtime_processor
+  name: realtime-processor
 spec:
-  replicas: 1
   template:
     spec:
       containers:
-      - name: realtime_processor
+      - name: realtime-processor
         resources:
           requests:
             memory: "128Mi"
@@ -60,13 +57,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ksqdb_connector
+  name: ksqdb-connector
 spec:
-  replicas: 1
   template:
     spec:
       containers:
-      - name: ksqdb_connector
+      - name: ksqdb-connector
         resources:
           requests:
             memory: "128Mi"
@@ -78,13 +74,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: spark_batch_processor
+  name: spark-batch-processor
 spec:
-  replicas: 1
   template:
     spec:
       containers:
-      - name: spark_batch_processor
+      - name: spark-batch-processor
         resources:
           requests:
             memory: "256Mi"
@@ -96,13 +91,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: serving_trino
+  name: serving-trino
 spec:
-  replicas: 1
   template:
     spec:
       containers:
-      - name: serving_trino
+      - name: serving-trino
         resources:
           requests:
             memory: "256Mi"
@@ -114,13 +108,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: visualization_superset
+  name: visualization-superset
 spec:
-  replicas: 1
   template:
     spec:
       containers:
-      - name: visualization_superset
+      - name: visualization-superset
         resources:
           requests:
             memory: "256Mi"
@@ -132,13 +125,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: visualization_metabase
+  name: visualization-metabase
 spec:
-  replicas: 1
   template:
     spec:
       containers:
-      - name: visualization_metabase
+      - name: visualization-metabase
         resources:
           requests:
             memory: "256Mi"
@@ -150,13 +142,12 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: data_catalog
+  name: data-catalog
 spec:
-  replicas: 1
   template:
     spec:
       containers:
-      - name: data_catalog
+      - name: data-catalog
         resources:
           requests:
             memory: "256Mi"
@@ -170,7 +161,6 @@ kind: Deployment
 metadata:
   name: airflow
 spec:
-  replicas: 1
   template:
     spec:
       containers:
@@ -188,7 +178,6 @@ kind: Deployment
 metadata:
   name: prometheus
 spec:
-  replicas: 1
   template:
     spec:
       containers:
@@ -206,7 +195,6 @@ kind: Deployment
 metadata:
   name: grafana
 spec:
-  replicas: 1
   template:
     spec:
       containers:
