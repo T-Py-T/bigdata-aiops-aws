@@ -1,0 +1,42 @@
+# infra/k8s/overlays/local/metallb.yaml
+# MetalLB for LoadBalancer service IPs on local OrbStack cluster
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: metallb-system
+---
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: metallb
+  namespace: kube-system
+spec:
+  chart: metallb
+  repo: https://metallb.io/helm
+  targetNamespace: metallb-system
+  valuesContent: |
+    controller:
+      enabled: true
+    speaker:
+      enabled: true
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: first-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 192.168.139.240/28
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: example
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - first-pool
+

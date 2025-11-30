@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - namespaces.yaml
+  - metallb.yaml
   - kafka-local.yaml
   - storage.yaml
   - spark-deployment.yaml
