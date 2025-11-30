@@ -3,10 +3,8 @@ kind: Kustomization
 
 resources:
   - namespaces.yaml
-  - metallb.yaml
   - kafka-local.yaml
   - storage.yaml
-  - spark-deployment.yaml
   - trino-deployment.yaml
   - metabase-deployment.yaml
   - superset-deployment.yaml
