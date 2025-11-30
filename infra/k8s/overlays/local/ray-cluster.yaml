@@ -47,7 +47,9 @@ spec:
             --port=6379 
             --dashboard-host=0.0.0.0 
             --dashboard-port=8265
-            --num-cpus=2
+            --num-cpus=1
+            --object-store-memory=100000000
+            --disable-usage-stats
             --block
         ports:
         - containerPort: 6379
@@ -107,7 +109,9 @@ spec:
           - >
             ray start 
             --address=ray-head-service:6379
-            --num-cpus=2
+            --num-cpus=1
+            --object-store-memory=100000000
+            --disable-usage-stats
             --block
         env:
         - name: RAY_HEAD_SERVICE
