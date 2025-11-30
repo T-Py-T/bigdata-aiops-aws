@@ -1,0 +1,28 @@
+# infra/k8s/overlays/local/namespaces.yaml
+# Separate namespaces for each service deployment
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kafka
+  labels:
+    name: kafka
+    environment: local
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: zookeeper
+  labels:
+    name: zookeeper
+    environment: local
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: minio
+  labels:
+    name: minio
+    environment: local
+

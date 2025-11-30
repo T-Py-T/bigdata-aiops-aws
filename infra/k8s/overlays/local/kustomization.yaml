@@ -1,17 +1,18 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: data-platform
-
 resources:
-  - namespace.yaml
+  - namespaces.yaml
   - kafka-local.yaml
   - storage.yaml
 
 configMapGenerator:
   - name: platform-config
+    namespace: kafka
     literals:
-      - KAFKA_BROKER=kafka-service.data-platform.svc.cluster.local:9092
+      - KAFKA_BROKER=kafka-service.kafka.svc.cluster.local:9092
+      - ZOOKEEPER_BROKER=zookeeper-service.zookeeper.svc.cluster.local:2181
+      - MINIO_ENDPOINT=minio-service.minio.svc.cluster.local:9000
       - ENVIRONMENT=local
       - LOG_LEVEL=DEBUG
 
