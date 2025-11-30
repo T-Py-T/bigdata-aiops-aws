@@ -7,20 +7,17 @@ resources:
   - namespace.yaml
   - kafka-local.yaml
   - storage.yaml
-  - ../../base/python_stream_processor-deployment.yaml
-  - ../../base/realtime_processor-deployment.yaml
-  - ../../base/ksqdb_connector-deployment.yaml
-  - ../../base/spark_batch_processor-deployment.yaml
-  - ../../base/serving_trino-deployment.yaml
-  - ../../base/visualization_superset-deployment.yaml
-  - ../../base/visualization_metabase-deployment.yaml
-  - ../../base/data_catalog-deployment.yaml
-  - ../../base/airflow-deployment.yaml
-  - ../../base/prometheus.yaml
-  - ../../base/grafana.yaml
 
-patchesStrategicMerge:
-  - patch-local.yaml
+patches:
+  - target:
+      kind: Deployment
+    patch: |-
+      - op: replace
+        path: /spec/template/spec/containers/0/image
+        value: "alpine:latest"
+      - op: replace
+        path: /spec/replicas
+        value: 1
 
 configMapGenerator:
   - name: platform-config
