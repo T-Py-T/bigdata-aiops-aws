@@ -20,12 +20,22 @@ spec:
       containers:
       - name: airflow
         image: apache/airflow:2.7.3-python3.11
+        command: ["/bin/bash", "-c"]
+        args:
+          - |
+            airflow db init || true
+            airflow users create --role Admin --username admin --email admin@example.com --firstname admin --lastname admin --password admin || true
+            airflow webserver
         ports:
         - containerPort: 8080
           name: webserver
         env:
         - name: AIRFLOW_HOME
           value: /home/airflow
+        - name: AIRFLOW__CORE__SQL_ALCHEMY_CONN
+          value: "sqlite:////home/airflow/airflow.db"
+        - name: AIRFLOW__CORE__LOAD_EXAMPLES
+          value: "false"
         resources:
           requests:
             memory: "512Mi"

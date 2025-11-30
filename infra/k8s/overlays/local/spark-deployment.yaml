@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: spark-batch-processor
-        image: bitnami/spark:3.5.0
+        image: docker.io/bitnami/spark:3.5.0
         ports:
         - containerPort: 8080
           name: web
