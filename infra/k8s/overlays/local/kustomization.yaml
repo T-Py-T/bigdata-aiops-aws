@@ -3,10 +3,16 @@ kind: Kustomization
 
 namespace: data-platform
 
+bases:
+  - ../../base
+
 resources:
   - namespace.yaml
   - kafka-local.yaml
   - storage.yaml
+
+patchesStrategicMerge:
+  - patch-local.yaml
 
 configMapGenerator:
   - name: platform-config

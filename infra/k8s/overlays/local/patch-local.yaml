@@ -1,0 +1,221 @@
+# infra/k8s/overlays/local/patch-local.yaml
+# Resource limits for local development - all services scaled down for laptop/small K8s
+# Patches base deployments with development-friendly resource requests
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-ingest
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: kafka-ingest
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python_stream_processor
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: python_stream_processor
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: realtime_processor
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: realtime_processor
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ksqdb_connector
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: ksqdb_connector
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark_batch_processor
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: spark_batch_processor
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serving_trino
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: serving_trino
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visualization_superset
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: visualization_superset
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visualization_metabase
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: visualization_metabase
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data_catalog
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: data_catalog
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: airflow
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: prometheus
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: grafana
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "100m"
+
