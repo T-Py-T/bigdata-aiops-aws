@@ -5,7 +5,6 @@ metadata:
   name: kafka-ingest
   namespace: data-platform
 spec:
-  replicas: 1
   template:
     spec:
       containers:
@@ -24,14 +23,13 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: python-stream-processor
+  name: python_stream_processor
   namespace: data-platform
 spec:
-  replicas: 1
   template:
     spec:
       containers:
-      - name: python-stream-processor
+      - name: python_stream_processor
         resources:
           requests:
             memory: "256Mi"
@@ -48,14 +46,13 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: realtime-processor
+  name: realtime_processor
   namespace: data-platform
 spec:
-  replicas: 1
   template:
     spec:
       containers:
-      - name: realtime-processor
+      - name: realtime_processor
         resources:
           requests:
             memory: "256Mi"
@@ -68,4 +65,166 @@ spec:
           value: "kafka-service.data-platform.svc.cluster.local:9092"
         - name: RAY_ADDRESS
           value: "ray://ray-head-service.data-platform.svc.cluster.local:10001"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow
+  namespace: data-platform
+spec:
+  template:
+    spec:
+      containers:
+      - name: airflow
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serving_trino
+  namespace: data-platform
+spec:
+  template:
+    spec:
+      containers:
+      - name: serving_trino
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visualization_superset
+  namespace: data-platform
+spec:
+  template:
+    spec:
+      containers:
+      - name: visualization_superset
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visualization_metabase
+  namespace: data-platform
+spec:
+  template:
+    spec:
+      containers:
+      - name: visualization_metabase
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data_catalog
+  namespace: data-platform
+spec:
+  template:
+    spec:
+      containers:
+      - name: data_catalog
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ksqdb_connector
+  namespace: data-platform
+spec:
+  template:
+    spec:
+      containers:
+      - name: ksqdb_connector
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark_batch_processor
+  namespace: data-platform
+spec:
+  template:
+    spec:
+      containers:
+      - name: spark_batch_processor
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: data-platform
+spec:
+  template:
+    spec:
+      containers:
+      - name: prometheus
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: data-platform
+spec:
+  template:
+    spec:
+      containers:
+      - name: grafana
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
 
