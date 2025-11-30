@@ -1,0 +1,54 @@
+# infra/k8s/overlays/local/trino-deployment.yaml
+# Trino for federated SQL queries across multiple data sources
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: trino
+  labels:
+    name: trino
+    environment: local
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serving-trino
+  namespace: trino
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trino
+  template:
+    metadata:
+      labels:
+        app: trino
+    spec:
+      containers:
+      - name: trino
+        image: trinodb/trino:429
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "300m"
+          limits:
+            memory: "1Gi"
+            cpu: "750m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: trino-service
+  namespace: trino
+spec:
+  selector:
+    app: trino
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
+

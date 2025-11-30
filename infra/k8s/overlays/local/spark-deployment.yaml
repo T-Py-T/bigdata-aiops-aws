@@ -1,0 +1,60 @@
+# infra/k8s/overlays/local/spark-deployment.yaml
+# Spark batch processor for large-scale data processing
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: spark
+  labels:
+    name: spark
+    environment: local
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-batch-processor
+  namespace: spark
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-batch-processor
+  template:
+    metadata:
+      labels:
+        app: spark-batch-processor
+    spec:
+      containers:
+      - name: spark-batch-processor
+        image: bitnami/spark:3.5.0
+        ports:
+        - containerPort: 8080
+          name: web
+        - containerPort: 7077
+          name: master
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-service
+  namespace: spark
+spec:
+  selector:
+    app: spark-batch-processor
+  ports:
+  - name: web
+    port: 8080
+    targetPort: 8080
+  - name: master
+    port: 7077
+    targetPort: 7077
+  type: ClusterIP
+

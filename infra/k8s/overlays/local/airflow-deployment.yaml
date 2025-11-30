@@ -1,0 +1,57 @@
+# infra/k8s/overlays/local/airflow-deployment.yaml
+# Airflow for data pipeline orchestration
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: airflow
+  labels:
+    name: airflow
+    environment: local
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airflow
+  namespace: airflow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airflow
+  template:
+    metadata:
+      labels:
+        app: airflow
+    spec:
+      containers:
+      - name: airflow
+        image: apache/airflow:2.7.3-python3.11
+        ports:
+        - containerPort: 8080
+          name: webserver
+        env:
+        - name: AIRFLOW_HOME
+          value: /home/airflow
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "300m"
+          limits:
+            memory: "1Gi"
+            cpu: "750m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: airflow-service
+  namespace: airflow
+spec:
+  selector:
+    app: airflow
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
+

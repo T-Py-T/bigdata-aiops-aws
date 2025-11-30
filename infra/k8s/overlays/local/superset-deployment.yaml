@@ -1,0 +1,54 @@
+# infra/k8s/overlays/local/superset-deployment.yaml
+# Superset for self-service analytics dashboards
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: superset
+  labels:
+    name: superset
+    environment: local
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visualization-superset
+  namespace: superset
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: superset
+  template:
+    metadata:
+      labels:
+        app: superset
+    spec:
+      containers:
+      - name: superset
+        image: apache/superset:3.0.0
+        ports:
+        - containerPort: 8088
+          name: http
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: superset-service
+  namespace: superset
+spec:
+  selector:
+    app: superset
+  ports:
+  - port: 8088
+    targetPort: 8088
+  type: ClusterIP
+

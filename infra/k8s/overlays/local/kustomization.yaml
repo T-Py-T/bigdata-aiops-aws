@@ -5,6 +5,12 @@ resources:
   - namespaces.yaml
   - kafka-local.yaml
   - storage.yaml
+  - spark-deployment.yaml
+  - trino-deployment.yaml
+  - metabase-deployment.yaml
+  - superset-deployment.yaml
+  - airflow-deployment.yaml
+  - python-processor-deployment.yaml
 
 configMapGenerator:
   - name: platform-config

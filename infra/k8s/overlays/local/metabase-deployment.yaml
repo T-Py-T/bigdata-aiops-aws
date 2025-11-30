@@ -1,0 +1,54 @@
+# infra/k8s/overlays/local/metabase-deployment.yaml
+# Metabase for executive reporting and dashboards
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: metabase
+  labels:
+    name: metabase
+    environment: local
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: visualization-metabase
+  namespace: metabase
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: metabase
+  template:
+    metadata:
+      labels:
+        app: metabase
+    spec:
+      containers:
+      - name: metabase
+        image: metabase/metabase:v0.48.3
+        ports:
+        - containerPort: 3000
+          name: http
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: metabase-service
+  namespace: metabase
+spec:
+  selector:
+    app: metabase
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: ClusterIP
+

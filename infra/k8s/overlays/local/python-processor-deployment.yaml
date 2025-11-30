@@ -1,0 +1,52 @@
+# infra/k8s/overlays/local/python-processor-deployment.yaml
+# Python stream processor for custom ML workloads
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: python-processor
+  labels:
+    name: python-processor
+    environment: local
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-stream-processor
+  namespace: python-processor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-stream-processor
+  template:
+    metadata:
+      labels:
+        app: python-stream-processor
+    spec:
+      containers:
+      - name: python-stream-processor
+        image: python:3.11-slim
+        command: ["python", "-c", "import time; print('Python processor ready'); time.sleep(3600)"]
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-processor-service
+  namespace: python-processor
+spec:
+  selector:
+    app: python-stream-processor
+  ports:
+  - port: 8080
+    targetPort: 8080
+  type: ClusterIP
+
