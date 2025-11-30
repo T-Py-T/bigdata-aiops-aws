@@ -17,8 +17,9 @@ configMapGenerator:
     namespace: kafka
     literals:
       - KAFKA_BROKER=kafka-service.kafka.svc.cluster.local:9092
-      - ZOOKEEPER_BROKER=zookeeper-service.zookeeper.svc.cluster.local:2181
-      - MINIO_ENDPOINT=minio-service.minio.svc.cluster.local:9000
+      - ZOOKEEPER_BROKER=zookeeper-service.infrastructure.svc.cluster.local:2181
+      - MINIO_ENDPOINT=minio-service.infrastructure.svc.cluster.local:9000
+      - TRINO_ENDPOINT=trino-service.analytics.svc.cluster.local:8080
       - ENVIRONMENT=local
       - LOG_LEVEL=DEBUG
 

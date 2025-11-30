@@ -2,19 +2,11 @@
 # Python stream processor for custom ML workloads
 
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: python-processor
-  labels:
-    name: python-processor
-    environment: local
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: python-stream-processor
-  namespace: python-processor
+  namespace: data-processing
 spec:
   replicas: 1
   selector:
@@ -41,7 +33,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: python-processor-service
-  namespace: python-processor
+  namespace: data-processing
 spec:
   selector:
     app: python-stream-processor

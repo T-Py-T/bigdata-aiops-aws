@@ -1,5 +1,5 @@
 # infra/k8s/overlays/local/namespaces.yaml
-# Separate namespaces for each service deployment
+# Logical namespace grouping for MLOps platform services
 
 ---
 apiVersion: v1
@@ -9,20 +9,40 @@ metadata:
   labels:
     name: kafka
     environment: local
+    tier: critical
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: zookeeper
+  name: data-processing
   labels:
-    name: zookeeper
+    name: data-processing
     environment: local
+    tier: processing
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: minio
+  name: analytics
   labels:
-    name: minio
+    name: analytics
     environment: local
-
+    tier: query
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: orchestration
+  labels:
+    name: orchestration
+    environment: local
+    tier: control
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: infrastructure
+  labels:
+    name: infrastructure
+    environment: local
+    tier: support

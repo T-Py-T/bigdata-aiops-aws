@@ -2,19 +2,11 @@
 # Airflow for data pipeline orchestration
 
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: airflow
-  labels:
-    name: airflow
-    environment: local
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: airflow
-  namespace: airflow
+  namespace: orchestration
 spec:
   replicas: 1
   selector:
@@ -46,7 +38,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: airflow-service
-  namespace: airflow
+  namespace: orchestration
 spec:
   selector:
     app: airflow

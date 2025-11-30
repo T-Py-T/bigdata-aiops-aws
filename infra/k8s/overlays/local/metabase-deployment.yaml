@@ -2,19 +2,11 @@
 # Metabase for executive reporting and dashboards
 
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: metabase
-  labels:
-    name: metabase
-    environment: local
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: visualization-metabase
-  namespace: metabase
+  namespace: analytics
 spec:
   replicas: 1
   selector:
@@ -43,7 +35,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: metabase-service
-  namespace: metabase
+  namespace: analytics
 spec:
   selector:
     app: metabase

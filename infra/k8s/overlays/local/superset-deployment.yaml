@@ -2,19 +2,11 @@
 # Superset for self-service analytics dashboards
 
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: superset
-  labels:
-    name: superset
-    environment: local
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: visualization-superset
-  namespace: superset
+  namespace: analytics
 spec:
   replicas: 1
   selector:
@@ -43,7 +35,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: superset-service
-  namespace: superset
+  namespace: analytics
 spec:
   selector:
     app: superset
