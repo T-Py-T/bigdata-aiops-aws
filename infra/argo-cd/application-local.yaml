@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/T-Py-T/bigdata-aiops-aws
     targetRevision: infra
-    path: infra/kubernetes/overlays/local
+    path: infra/k8s/overlays/local
   destination:
     server: https://kubernetes.default.svc
     namespace: data-platform
