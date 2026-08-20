@@ -70,14 +70,18 @@ The intended validation sequence is:
 6. Verify workload readiness, service discovery, and a synthetic event path.
 7. Capture metrics, failure criteria, cost, and teardown results.
 
-Example structural checks:
+Current structural checks:
 
 ```bash
 terraform -chdir=infra/terraform fmt -check
-terraform -chdir=infra/terraform validate
-kubectl kustomize infra/k8s/overlays/dev >/tmp/bigdata-aiops-dev.yaml
-kubectl apply --dry-run=client -f /tmp/bigdata-aiops-dev.yaml
+rg -n '\{\{' infra services
 ```
+
+The second command intentionally reports unresolved template values. The
+checked-in Kustomize files are scaffolds, not directly renderable deployment
+artifacts. Before provisioning, an environment-specific materialization step
+must replace every reported value; only then should `terraform validate`,
+`kubectl kustomize`, and a server-side dry run be treated as gates.
 
 Cloud provisioning is intentionally not part of an automatic hosted workflow;
 it requires explicit credentials, cost awareness, and a planned teardown.
@@ -85,10 +89,11 @@ it requires explicit credentials, cost awareness, and a planned teardown.
 ## Evidence and limits
 
 This repository currently proves the configuration structure and service
-boundaries. It does **not** yet prove a specific throughput, latency, uptime,
-cost saving, deployment frequency, or petabyte-scale result. Those claims
-require a retained benchmark tied to an exact commit, workload, AWS topology,
-time window, raw output, and cost report.
+boundaries. It does **not** yet provide a ready-to-apply environment because
+template materialization is incomplete. It also does not prove a specific
+throughput, latency, uptime, cost saving, deployment frequency, or
+petabyte-scale result. Those claims require a retained benchmark tied to an
+exact commit, workload, AWS topology, time window, raw output, and cost report.
 
 The next high-value milestone is a bounded end-to-end experiment:
 
