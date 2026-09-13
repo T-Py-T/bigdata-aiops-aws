@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+
 # Create directories
 dirs=(
   "services/kafka_ingest/src"
@@ -13,11 +15,8 @@ dirs=(
   "services/ksqdb_connector"
   "services/serving_trino/config"
   "services/serving_trino"
-  "services/visualization_superset/config"
   "services/visualization_superset"
-  "services/visualization_metabase/config"
   "services/visualization_metabase"
-  "services/data_catalog/config"
   "services/data_catalog"
   "infra/k8s/base"
   "infra/k8s/overlays/dev"
@@ -41,10 +40,13 @@ from kafka import KafkaProducer
 from fastapi import FastAPI
 
 app = FastAPI()
-producer = KafkaProducer(
-    bootstrap_servers=["{{ KAFKA_BROKER }}"],
-    value_serializer=lambda v: json.dumps(v).encode()
-)
+
+
+def create_producer():
+    return KafkaProducer(
+        bootstrap_servers=["{{ KAFKA_BROKER }}"],
+        value_serializer=lambda value: json.dumps(value).encode(),
+    )
 
 @app.get("/health")
 def health_check():
@@ -52,25 +54,33 @@ def health_check():
 
 @app.post("/ingest")
 def ingest_data(payload: dict):
-    producer.send("ingest_topic", payload)
-    producer.flush()
-    logging.info("Data ingested: %s", payload)
+    producer = create_producer()
+    try:
+        producer.send("ingest_topic", payload)
+        producer.flush()
+        logging.info("Data ingested: %s", payload)
+    finally:
+        producer.close()
     return {"message": "Data ingested"}
 EOF
 
 cat << 'EOF' > services/kafka_ingest/Dockerfile
-FROM python:3.9-slim
+FROM python:3.14.7-slim-trixie@sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update \
+    && apt-get upgrade --yes \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m pip install --no-cache-dir --upgrade pip==26.2.1 \
+    && python -m pip install --no-cache-dir --requirement requirements.txt
 COPY src/ .
 CMD ["uvicorn", "ingest:app", "--host", "0.0.0.0", "--port", "8000"]
 EOF
 
 cat << 'EOF' > services/kafka_ingest/requirements.txt
-fastapi==0.95.1
-uvicorn==0.21.1
-kafka-python==2.0.2
+fastapi==0.141.1
+uvicorn==0.52.4
+kafka-python==3.0.11
 EOF
 
 #####################################
@@ -82,31 +92,37 @@ import json
 import logging
 from kafka import KafkaConsumer
 
-consumer = KafkaConsumer(
-    "ingest_topic",
-    bootstrap_servers=["{{ KAFKA_BROKER }}"],
-    value_deserializer=lambda m: json.loads(m.decode("utf-8"))
-)
+
+def create_consumer():
+    return KafkaConsumer(
+        "ingest_topic",
+        bootstrap_servers=["{{ KAFKA_BROKER }}"],
+        value_deserializer=lambda message: json.loads(message.decode("utf-8")),
+    )
 
 def process_message(message):
     logging.info("Processing message: %s", message)
 
 if __name__ == "__main__":
-    for msg in consumer:
-        process_message(msg.value)
+    for message in create_consumer():
+        process_message(message.value)
 EOF
 
 cat << 'EOF' > services/python_stream_processor/Dockerfile
-FROM python:3.9-slim
+FROM python:3.14.7-slim-trixie@sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update \
+    && apt-get upgrade --yes \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m pip install --no-cache-dir --upgrade pip==26.2.1 \
+    && python -m pip install --no-cache-dir --requirement requirements.txt
 COPY src/ .
 CMD ["python", "processor.py"]
 EOF
 
 cat << 'EOF' > services/python_stream_processor/requirements.txt
-kafka-python==2.0.2
+kafka-python==3.0.11
 EOF
 
 #####################################
@@ -129,16 +145,10 @@ if __name__ == "__main__":
 EOF
 
 cat << 'EOF' > services/spark_batch_processor/Dockerfile
-FROM bitnami/spark:3.3.0-debian-11-r0
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY src/ .
-CMD ["python", "batch_processor.py"]
-EOF
-
-cat << 'EOF' > services/spark_batch_processor/requirements.txt
-pyspark==3.3.0
+FROM spark:4.2.0-python3@sha256:be7657ac5f672782b8301866cf5efe0cff5d688a1a2e28748447d326d6d8aa28
+WORKDIR /opt/spark/work-dir/app
+COPY --chown=spark:spark src/ .
+CMD ["/opt/spark/bin/spark-submit", "batch_processor.py"]
 EOF
 
 #####################################
@@ -160,16 +170,10 @@ if __name__ == "__main__":
 EOF
 
 cat << 'EOF' > services/realtime_processor/Dockerfile
-FROM bitnami/spark:3.3.0-debian-11-r0
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY src/ .
-CMD ["python", "realtime_processor.py"]
-EOF
-
-cat << 'EOF' > services/realtime_processor/requirements.txt
-pyspark==3.3.0
+FROM spark:4.2.0-python3@sha256:be7657ac5f672782b8301866cf5efe0cff5d688a1a2e28748447d326d6d8aa28
+WORKDIR /opt/spark/work-dir/app
+COPY --chown=spark:spark src/ .
+CMD ["/opt/spark/bin/spark-submit", "realtime_processor.py"]
 EOF
 
 #####################################
@@ -195,76 +199,62 @@ if __name__ == "__main__":
 EOF
 
 cat << 'EOF' > services/ksqdb_connector/Dockerfile
-FROM python:3.9-slim
+FROM python:3.14.7-slim-trixie@sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6
 WORKDIR /app
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update \
+    && apt-get upgrade --yes \
+    && rm -rf /var/lib/apt/lists/* \
+    && python -m pip install --no-cache-dir --upgrade pip==26.2.1 \
+    && python -m pip install --no-cache-dir --requirement requirements.txt
 COPY src/ .
 CMD ["python", "connector.py"]
 EOF
 
 cat << 'EOF' > services/ksqdb_connector/requirements.txt
-requests==2.28.1
+requests==2.34.2
 EOF
 
 #####################################
 # Services: Trino Serving
 #####################################
 
-cat << 'EOF' > services/serving_trino/config/trino-config.yaml
-coordinator: true
-node-scheduler.include-coordinator: true
-http-server.http.port: 8080
-query.max-memory: 5GB
-query.max-memory-per-node: 1GB
-discovery-server.enabled: true
-discovery.uri: "http://localhost:8080"
+cat << 'EOF' > services/serving_trino/config/config.properties
+coordinator=true
+node-scheduler.include-coordinator=true
+http-server.http.port=8080
+query.max-memory=5GB
+query.max-memory-per-node=1GB
+discovery.uri=http://localhost:8080
 EOF
 
 cat << 'EOF' > services/serving_trino/Dockerfile
-FROM trinodb/trino:latest
-COPY config/trino-config.yaml /etc/trino/config.properties
+FROM trinodb/trino:483@sha256:db58cc93e593a2706553745f276bb119c9810e69918be56ecde088ba7ccb0534
+COPY config/config.properties /etc/trino/config.properties
 EOF
 
 #####################################
 # Services: Visualization – Superset
 #####################################
 
-cat << 'EOF' > services/visualization_superset/config/superset-config.yaml
-SUPERSET_CONFIG_PATH: /app/superset_config.py
-EOF
-
 cat << 'EOF' > services/visualization_superset/Dockerfile
-FROM apache/superset:latest
-COPY config/superset-config.yaml /app/superset-config.yaml
+FROM apache/superset:6.1.0-py311@sha256:122442a9827d887e4c7a31de31e94f910981aad4ca46d466879e5bbf71ee1e46
 EOF
 
 #####################################
 # Services: Visualization – Metabase
 #####################################
 
-cat << 'EOF' > services/visualization_metabase/config/metabase-config.yaml
-metabase:
-  config: /app/metabase_config.yml
-EOF
-
 cat << 'EOF' > services/visualization_metabase/Dockerfile
-FROM metabase/metabase:latest
-COPY config/metabase-config.yaml /app/metabase-config.yaml
+FROM metabase/metabase:v0.63.17.2@sha256:5f2ace3426bc4fa9259d6ec68dacae0023c302e8e812ee7f54fce9f6942b6874
 EOF
 
 #####################################
 # Services: Data Catalog (DataHub)
 #####################################
 
-cat << 'EOF' > services/data_catalog/config/datahub-config.yaml
-DATAHUB_GMS_URL: "http://datahub-gms:8080"
-DATAHUB_ELASTIC_HOST: "http://{{ ELASTIC_ENDPOINT }}:9200"
-EOF
-
 cat << 'EOF' > services/data_catalog/Dockerfile
-FROM datahub/datahub-frontend:latest
-COPY config/datahub-config.yaml /app/datahub-config.yaml
+FROM acryldata/datahub-frontend-react:v1.7.0.1@sha256:99513cc1c45e4cc053ceb0f9aeb04a3263a8a747907bb0e85cac2eb03461310d
 EOF
 
 #####################################
@@ -425,6 +415,12 @@ spec:
       containers:
       - name: visualization-superset
         image: "{{ VISUALIZATION_SUPERSET_IMAGE }}"
+        env:
+        - name: SUPERSET_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: bigdata-platform-secrets
+              key: superset-secret-key
 EOF
 
 # visualization_metabase deployment
@@ -702,8 +698,8 @@ EOF
 
 cat << 'EOF' > infra/airflow/dags/pipeline_dag.py
 from datetime import datetime, timedelta
-from airflow import DAG
-from airflow.operators.bash import BashOperator
+from airflow.providers.standard.operators.bash import BashOperator
+from airflow.sdk import DAG
 
 default_args = {
     'owner': 'airflow',
@@ -715,7 +711,7 @@ default_args = {
 dag = DAG(
     'data_pipeline',
     default_args=default_args,
-    schedule_interval='@daily',
+    schedule='@daily',
     catchup=False
 )
 
@@ -741,7 +737,7 @@ task_ingest >> task_stream >> task_batch
 EOF
 
 cat << 'EOF' > infra/airflow/Dockerfile
-FROM apache/airflow:2.5.0-python3.9
+FROM apache/airflow:3.3.1-python3.12@sha256:b01a795dfbd113bbbfdf3ee169b8f27e9a0090ccef105f1a452b3594a11ed316
 COPY dags/ /opt/airflow/dags/
 EOF
 

@@ -1,8 +1,7 @@
-- name: Terraform Deploy
-  run: |
-    cd infra/terraform
-    ./deploy.sh deploy
-  env:
-    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    AWS_REGION: ${{ secrets.AWS_REGION }}
+#!/bin/bash
+set -euo pipefail
+
+terraform_directory="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+terraform -chdir="$terraform_directory" init
+terraform -chdir="$terraform_directory" destroy "$@"

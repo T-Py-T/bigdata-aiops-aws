@@ -1,0 +1,18 @@
+repos:
+  - repo: local
+    hooks:
+      - id: scaffold-tests
+        name: scaffold tests
+        entry: python3 -m unittest discover -s tests -v
+        language: system
+        pass_filenames: false
+      - id: shell-syntax
+        name: shell syntax
+        entry: bash -n create_project.sh infra/terraform/deploy.sh infra/terraform/destroy.sh
+        language: system
+        pass_filenames: false
+      - id: terraform-format
+        name: terraform format
+        entry: terraform -chdir=infra/terraform fmt -check
+        language: system
+        pass_filenames: false

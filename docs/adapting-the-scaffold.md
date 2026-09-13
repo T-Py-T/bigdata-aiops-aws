@@ -13,9 +13,9 @@ replaced independently.
 
 ## 2. Update infrastructure versions
 
-Review the AWS provider, VPC module, EKS module, and Kubernetes version in
-`infra/terraform/`. Confirm their current upgrade requirements and replace the
-sample network ranges, sizing, and tags through Terraform variables.
+The AWS provider, VPC module, EKS module, and Kubernetes version are pinned in
+`infra/terraform/`. Review their upgrade notes before changing those pins, then
+replace the sample network ranges, sizing, and tags through Terraform variables.
 
 Run formatting before initialization:
 
@@ -33,7 +33,7 @@ before any apply.
 
 Every application placeholder in the Kubernetes base needs a concrete image
 repository. Build only the selected services, scan the resulting images, and
-pin release tags or digests. Do not deploy the floating `latest` examples.
+pin each environment to an immutable digest.
 
 The image placeholders are:
 
@@ -69,6 +69,11 @@ rg -n '\{\{' infra services
 
 Do not commit credentials. Use the AWS credential chain and the environment's
 secret manager for tokens, passwords, and application secrets.
+
+Create `bigdata-platform-secrets` in the target namespace with a strong
+`superset-secret-key` value before deploying Superset. The checked-in
+deployment reads the value through a Kubernetes Secret reference; it does not
+contain a default application secret.
 
 ## 5. Render before applying
 

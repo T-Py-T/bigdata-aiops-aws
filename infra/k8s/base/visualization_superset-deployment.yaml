@@ -15,3 +15,9 @@ spec:
       containers:
       - name: visualization-superset
         image: "{{ VISUALIZATION_SUPERSET_IMAGE }}"
+        env:
+        - name: SUPERSET_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: bigdata-platform-secrets
+              key: superset-secret-key

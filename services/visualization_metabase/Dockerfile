@@ -1,2 +1,1 @@
-FROM metabase/metabase:latest
-COPY config/metabase-config.yaml /app/metabase-config.yaml
+FROM metabase/metabase:v0.63.17.2@sha256:5f2ace3426bc4fa9259d6ec68dacae0023c302e8e812ee7f54fce9f6942b6874

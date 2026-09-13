@@ -138,9 +138,9 @@ Cloud provisioning is intentionally manual because it creates billable AWS
 resources. The helper scripts under `infra/terraform/` provide deployment and
 teardown entry points after configuration has been reviewed.
 
-The pinned examples reflect the repository's original implementation period.
-Review current AWS, Kubernetes, Terraform module, container image, and dependency
-versions before creating a new environment.
+The scaffold pins its Python packages, Terraform modules, and parent container
+images. Re-run the documented validation and image scans before deploying a
+generated environment.
 
 ## License
 
