@@ -1,2 +1,2 @@
-FROM trinodb/trino:latest
-COPY config/trino-config.yaml /etc/trino/config.properties
+FROM trinodb/trino:483@sha256:db58cc93e593a2706553745f276bb119c9810e69918be56ecde088ba7ccb0534
+COPY config/config.properties /etc/trino/config.properties

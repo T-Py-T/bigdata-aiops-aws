@@ -1,2 +1,1 @@
-FROM apache/superset:latest
-COPY config/superset-config.yaml /app/superset-config.yaml
+FROM apache/superset:6.1.0-py311@sha256:122442a9827d887e4c7a31de31e94f910981aad4ca46d466879e5bbf71ee1e46

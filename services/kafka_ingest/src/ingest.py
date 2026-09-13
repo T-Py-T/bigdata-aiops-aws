@@ -4,10 +4,13 @@ from kafka import KafkaProducer
 from fastapi import FastAPI
 
 app = FastAPI()
-producer = KafkaProducer(
-    bootstrap_servers=["{{ KAFKA_BROKER }}"],
-    value_serializer=lambda v: json.dumps(v).encode()
-)
+
+
+def create_producer():
+    return KafkaProducer(
+        bootstrap_servers=["{{ KAFKA_BROKER }}"],
+        value_serializer=lambda value: json.dumps(value).encode(),
+    )
 
 @app.get("/health")
 def health_check():
@@ -15,7 +18,11 @@ def health_check():
 
 @app.post("/ingest")
 def ingest_data(payload: dict):
-    producer.send("ingest_topic", payload)
-    producer.flush()
-    logging.info("Data ingested: %s", payload)
+    producer = create_producer()
+    try:
+        producer.send("ingest_topic", payload)
+        producer.flush()
+        logging.info("Data ingested: %s", payload)
+    finally:
+        producer.close()
     return {"message": "Data ingested"}

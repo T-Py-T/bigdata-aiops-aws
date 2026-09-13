@@ -1,2 +1,1 @@
-FROM datahub/datahub-frontend:latest
-COPY config/datahub-config.yaml /app/datahub-config.yaml
+FROM acryldata/datahub-frontend-react:v1.7.0.1@sha256:99513cc1c45e4cc053ceb0f9aeb04a3263a8a747907bb0e85cac2eb03461310d

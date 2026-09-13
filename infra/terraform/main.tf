@@ -1,9 +1,9 @@
 terraform {
-  required_version = ">= 1.0"
+  required_version = ">= 1.5.7"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">= 4.0"
+      version = "= 6.64.0"
     }
   }
 }
@@ -15,7 +15,7 @@ provider "aws" {
 # Create a VPC using the official AWS VPC module
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "3.14.2"
+  version = "6.7.2"
 
   name               = var.vpc_name
   cidr               = var.vpc_cidr
@@ -35,19 +35,19 @@ module "vpc" {
 # Create an EKS cluster using the official AWS EKS module
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "18.0.0"
+  version = "21.25.0"
 
-  cluster_name    = var.cluster_name
-  cluster_version = var.cluster_version
-  vpc_id          = module.vpc.vpc_id
-  subnets         = module.vpc.private_subnets
+  name               = var.cluster_name
+  kubernetes_version = var.cluster_version
+  vpc_id             = module.vpc.vpc_id
+  subnet_ids         = module.vpc.private_subnets
 
-  node_groups = {
+  eks_managed_node_groups = {
     eks_nodes = {
-      desired_capacity = var.desired_capacity
-      min_capacity     = var.min_capacity
-      max_capacity     = var.max_capacity
-      instance_type    = var.instance_type
+      desired_size   = var.desired_capacity
+      min_size       = var.min_capacity
+      max_size       = var.max_capacity
+      instance_types = [var.instance_type]
     }
   }
 
@@ -105,4 +105,3 @@ resource "aws_security_group" "alb_sg" {
     "Project"     = var.project
   }
 }
-
