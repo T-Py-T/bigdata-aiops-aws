@@ -9,6 +9,21 @@ The checked-in files are a scaffold: values such as `{{ KAFKA_BROKER }}` and
 `{{ S3_BUCKET }}` must be replaced for a real environment before the manifests
 or services can run.
 
+Use it when you want a concrete starting boundary between infrastructure,
+GitOps, batch processing, stream processing, serving, catalog, visualization,
+and observability instead of beginning with an empty repository.
+
+## What the scaffold provides
+
+| Area | Included starting point |
+| --- | --- |
+| AWS infrastructure | Terraform for a VPC, EKS node group, and application load balancer |
+| GitOps | Argo CD application and environment-specific Kustomize overlays |
+| Ingestion | FastAPI endpoint that publishes JSON events to Kafka |
+| Processing | Python consumer, Spark batch job, and Spark streaming job |
+| Serving and catalog | Trino, DataHub, Pinot/Elastic connector example |
+| Operations | Airflow DAG, Prometheus, Grafana, Superset, and Metabase resources |
+
 ## Architecture
 
 ```mermaid
@@ -69,6 +84,9 @@ The generated services are intentionally small. They establish container and
 configuration boundaries that can be replaced with production implementations
 without changing the surrounding directory contract.
 
+See [Adapting the scaffold](docs/adapting-the-scaffold.md) for the placeholder
+inventory, replacement order, and local validation boundary.
+
 ## Configure an environment
 
 1. Choose an overlay under `infra/k8s/overlays/`.
@@ -96,6 +114,10 @@ kubectl kustomize infra/k8s/overlays/dev >/tmp/streaming-platform-dev.yaml
 kubectl apply --dry-run=client -f /tmp/streaming-platform-dev.yaml
 ```
 
+Run `bash -n create_project.sh` before regenerating the tree. Terraform
+initialization downloads providers and modules; the Kubernetes checks require
+all template values to be replaced first.
+
 ## Deployment order
 
 The intended order is:
@@ -115,6 +137,10 @@ The intended order is:
 Cloud provisioning is intentionally manual because it creates billable AWS
 resources. The helper scripts under `infra/terraform/` provide deployment and
 teardown entry points after configuration has been reviewed.
+
+The pinned examples reflect the repository's original implementation period.
+Review current AWS, Kubernetes, Terraform module, container image, and dependency
+versions before creating a new environment.
 
 ## License
 
