@@ -1,5 +1,8 @@
 # AWS Streaming Platform Scaffold
 
+[![PR Checks](https://github.com/T-Py-T/bigdata-aiops-aws/actions/workflows/pr-checks.yml/badge.svg?branch=main)](https://github.com/T-Py-T/bigdata-aiops-aws/actions/workflows/pr-checks.yml)
+
+
 A repository generator and reference layout for a containerized streaming-data
 platform on AWS. It organizes Terraform, Kubernetes overlays, Argo CD,
 Airflow, stream processors, query services, catalog services, and dashboards
