@@ -1,3 +1,7 @@
+<!-- SECURITY.md -->
+<!-- Explains how to report a suspected vulnerability without publishing sensitive details. -->
+<!-- It does not promise a response time, support contract, or deployed security posture. -->
+
 # Security policy
 
 ## Report a vulnerability
@@ -32,3 +36,16 @@ private endpoints, or billable-resource identifiers tied to a real account.
 The scaffold uses placeholder template values and synthetic validation paths.
 Terraform and Kubernetes checks are intended for review before provisioning lab
 resources, not for exposing a public attack surface.
+
+There is no bug bounty, paid reward, or guaranteed response timeline beyond the
+acknowledgment window above.
+
+## Related documentation
+
+- [README.md](README.md) — scaffold scope, configuration, validation, and deployment order
+- [docs/HIREABILITY.md](docs/HIREABILITY.md) — thin reviewer and discoverability index
+- [CONTRIBUTING.md](CONTRIBUTING.md) — pull-request expectations for docs and scaffold changes
+- [LICENSE](LICENSE) — MIT terms
+
+**Tip cite:** `a74eb828` (Ship 256 merge on `main`); steward remap pending resolve for
+this documentation packet when this pull request merges.
