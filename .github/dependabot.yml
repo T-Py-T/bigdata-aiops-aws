@@ -1,0 +1,41 @@
+# .github/dependabot.yml
+# Schedules dependency update pull requests for Python services, Terraform providers, and GitHub Actions pins.
+# It does not assert READY status, production posture, or automatic merge approval.
+
+# Tip-cite: in PR descriptions, lead with an 8-character `main` tip prefix plus this PR number
+# (example shape: `a53098a5` + `#NNN`). A cited tip is alignment metadata only — tip ≠ READY.
+# Do not invent READY, certification, or deployed-security claims in Dependabot or manual bumps.
+# Revision cited at open: `a53098a5` (current `main` tip); Steward alignment for this packet may
+# resolve when this pull request merges. See CONTRIBUTING.md and SECURITY.md for human PR scope.
+
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /services/kafka_ingest
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: pip
+    directory: /services/ksqdb_connector
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: pip
+    directory: /services/python_stream_processor
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: terraform
+    directory: /infra/terraform
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
