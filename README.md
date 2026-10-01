@@ -151,10 +151,11 @@ generated environment.
   replacement order, and validation.
 - [Hireability and discoverability](docs/HIREABILITY.md) — topics, skim paths,
   and reviewer-oriented index (docs-only; reversible).
-- [Security policy](SECURITY.md) — how to report vulnerabilities.
+- [Security policy](SECURITY.md) — how to report vulnerabilities and scaffold boundary.
+- [Contributing](CONTRIBUTING.md) — pull-request expectations (docs-only lean; reversible).
 
-**Tip cite:** `b045787` (current `main` prefix at authoring time); steward remap
-pending resolve for the docs-only PR that added the cross-links above.
+**Tip cite:** `a74eb828` (Ship 256 merge on `main`); steward remap pending resolve for
+this documentation packet when this pull request merges.
 
 ## License
 
