@@ -145,6 +145,17 @@ The scaffold pins its Python packages, Terraform modules, and parent container
 images. Re-run the documented validation and image scans before deploying a
 generated environment.
 
+## Documentation and discoverability
+
+- [Adapting the scaffold](docs/adapting-the-scaffold.md) — placeholders,
+  replacement order, and validation.
+- [Hireability and discoverability](docs/HIREABILITY.md) — topics, skim paths,
+  and reviewer-oriented index (docs-only; reversible).
+- [Security policy](SECURITY.md) — how to report vulnerabilities.
+
+**Tip cite:** `b045787` (current `main` prefix at authoring time); steward remap
+pending resolve for the docs-only PR that added the cross-links above.
+
 ## License
 
 This project is available under the [MIT License](LICENSE). Images and software
