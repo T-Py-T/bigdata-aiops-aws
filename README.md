@@ -149,8 +149,6 @@ generated environment.
 
 - [Adapting the scaffold](docs/adapting-the-scaffold.md) — placeholders,
   replacement order, and validation.
-- [Hireability and discoverability](docs/HIREABILITY.md) — topics, skim paths,
-  and reviewer-oriented index (docs-only; reversible).
 - [Security policy](SECURITY.md) — how to report vulnerabilities and scaffold boundary.
 - [Contributing](CONTRIBUTING.md) — pull-request expectations (docs-only lean; reversible).
 

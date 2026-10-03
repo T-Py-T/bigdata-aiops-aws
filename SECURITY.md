@@ -43,7 +43,6 @@ acknowledgment window above.
 ## Related documentation
 
 - [README.md](README.md) — scaffold scope, configuration, validation, and deployment order
-- [docs/HIREABILITY.md](docs/HIREABILITY.md) — thin reviewer and discoverability index
 - [CONTRIBUTING.md](CONTRIBUTING.md) — pull-request expectations for docs and scaffold changes
 - [LICENSE](LICENSE) — MIT terms
 
