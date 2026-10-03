@@ -78,7 +78,7 @@ CMD ["uvicorn", "ingest:app", "--host", "0.0.0.0", "--port", "8000"]
 EOF
 
 cat << 'EOF' > services/kafka_ingest/requirements.txt
-fastapi==0.141.1
+fastapi==0.142.2
 uvicorn==0.54.0
 kafka-python==3.0.11
 EOF
