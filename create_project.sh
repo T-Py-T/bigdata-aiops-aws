@@ -79,7 +79,7 @@ EOF
 
 cat << 'EOF' > services/kafka_ingest/requirements.txt
 fastapi==0.141.1
-uvicorn==0.52.4
+uvicorn==0.54.0
 kafka-python==3.0.11
 EOF
 
