@@ -1,5 +1,6 @@
 from pyspark.sql import SparkSession
 
+
 def main():
     spark = SparkSession.builder.appName("SparkBatchProcessor").getOrCreate()
     s3_bucket = "s3a://{{ S3_BUCKET }}"

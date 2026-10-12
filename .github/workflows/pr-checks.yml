@@ -27,18 +27,21 @@ jobs:
           bash -n create_project.sh infra/terraform/deploy.sh infra/terraform/destroy.sh
           python3 -m unittest discover -s tests -v
 
-      - name: Install and audit Python dependencies
+      - name: Install, lint, and audit Python dependencies
         run: |
           python3 -m venv .venv
-          .venv/bin/python -m pip install --disable-pip-version-check pip-audit==2.10.1
+          .venv/bin/python -m pip install --disable-pip-version-check --upgrade pip==26.2.1
+          .venv/bin/python -m pip install --disable-pip-version-check pip-audit==2.10.1 ruff==0.14.3
           .venv/bin/python -m pip install --disable-pip-version-check \
             --requirement services/kafka_ingest/requirements.txt \
             --requirement services/ksqdb_connector/requirements.txt \
             --requirement services/python_stream_processor/requirements.txt
           .venv/bin/python -c "import fastapi, kafka, requests, uvicorn"
+          .venv/bin/ruff check services infra/airflow
           .venv/bin/pip-audit --requirement services/kafka_ingest/requirements.txt
           .venv/bin/pip-audit --requirement services/ksqdb_connector/requirements.txt
           .venv/bin/pip-audit --requirement services/python_stream_processor/requirements.txt
+          .venv/bin/pip-audit
 
       - name: Validate Terraform
         run: |

@@ -1,5 +1,5 @@
 import logging
-import requests
+
 
 def push_to_pinot(data):
     logging.info("Pushing data to Pinot: %s", data)
