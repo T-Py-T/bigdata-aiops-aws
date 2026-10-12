@@ -1,5 +1,6 @@
 resources:
   - kafka_ingest-deployment.yaml
+  - kafka_ingest-service.yaml
   - python_stream_processor-deployment.yaml
   - spark_batch_processor-deployment.yaml
   - realtime_processor-deployment.yaml

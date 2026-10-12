@@ -16,3 +16,6 @@ spec:
       - name: python-stream-processor
         image: "{{ PYTHON_STREAM_PROCESSOR_IMAGE }}"
         command: ["python", "processor.py"]
+        env:
+          - name: KAFKA_BROKER
+            value: "{{ KAFKA_BROKER }}"
