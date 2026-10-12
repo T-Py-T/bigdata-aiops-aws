@@ -36,8 +36,9 @@ done
 cat << 'EOF' > services/kafka_ingest/src/ingest.py
 import json
 import logging
-from kafka import KafkaProducer
+
 from fastapi import FastAPI
+from kafka import KafkaProducer
 
 app = FastAPI()
 
@@ -78,7 +79,7 @@ CMD ["uvicorn", "ingest:app", "--host", "0.0.0.0", "--port", "8000"]
 EOF
 
 cat << 'EOF' > services/kafka_ingest/requirements.txt
-fastapi==0.142.2
+fastapi==0.143.0
 uvicorn==0.54.0
 kafka-python==3.0.11
 EOF
@@ -90,6 +91,7 @@ EOF
 cat << 'EOF' > services/python_stream_processor/src/processor.py
 import json
 import logging
+
 from kafka import KafkaConsumer
 
 
@@ -131,6 +133,7 @@ EOF
 
 cat << 'EOF' > services/spark_batch_processor/src/batch_processor.py
 from pyspark.sql import SparkSession
+
 
 def main():
     spark = SparkSession.builder.appName("SparkBatchProcessor").getOrCreate()
@@ -182,7 +185,7 @@ EOF
 
 cat << 'EOF' > services/ksqdb_connector/src/connector.py
 import logging
-import requests
+
 
 def push_to_pinot(data):
     logging.info("Pushing data to Pinot: %s", data)
@@ -698,6 +701,7 @@ EOF
 
 cat << 'EOF' > infra/airflow/dags/pipeline_dag.py
 from datetime import datetime, timedelta
+
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.sdk import DAG
 

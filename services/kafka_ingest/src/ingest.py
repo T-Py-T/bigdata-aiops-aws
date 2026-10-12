@@ -1,7 +1,8 @@
 import json
 import logging
-from kafka import KafkaProducer
+
 from fastapi import FastAPI
+from kafka import KafkaProducer
 
 app = FastAPI()
 
