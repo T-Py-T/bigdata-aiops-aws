@@ -20,3 +20,14 @@ spec:
         env:
           - name: KAFKA_BROKER
             value: "{{ KAFKA_BROKER }}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-ingest
+spec:
+  selector:
+    app: kafka-ingest
+  ports:
+  - port: 8000
+    targetPort: 8000
