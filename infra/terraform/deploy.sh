@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 if [ "$#" -ne 1 ]; then
   echo "Usage: $0 [deploy|destroy]"
@@ -7,18 +7,18 @@ if [ "$#" -ne 1 ]; then
 fi
 
 COMMAND="$1"
+terraform_directory="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
-# Initialize Terraform
-terraform init
+terraform -chdir="$terraform_directory" init
 
-if [ "$COMMAND" == "deploy" ]; then
+if [ "$COMMAND" = "deploy" ]; then
   echo "Planning deployment..."
-  terraform plan -out=tfplan
+  terraform -chdir="$terraform_directory" plan -out=tfplan
   echo "Applying plan..."
-  terraform apply -auto-approve tfplan
-elif [ "$COMMAND" == "destroy" ]; then
+  terraform -chdir="$terraform_directory" apply -auto-approve tfplan
+elif [ "$COMMAND" = "destroy" ]; then
   echo "Destroying infrastructure..."
-  terraform destroy -auto-approve
+  terraform -chdir="$terraform_directory" destroy -auto-approve
 else
   echo "Unknown command: $COMMAND"
   echo "Usage: $0 [deploy|destroy]"
