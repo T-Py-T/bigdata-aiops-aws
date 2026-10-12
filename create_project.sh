@@ -717,7 +717,7 @@ dag = DAG(
 
 task_ingest = BashOperator(
     task_id='run_ingest',
-    bash_command='curl -X POST http://kafka-ingest:8000/ingest -d \'{"sample": "data"}\'',
+    bash_command='curl -sS -X POST http://kafka-ingest:8000/ingest -H "Content-Type: application/json" -d \'{"sample": "data"}\'',
     dag=dag
 )
 
