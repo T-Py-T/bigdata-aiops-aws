@@ -25,7 +25,7 @@ jobs:
       - name: Validate generated scaffold
         run: |
           bash -n create_project.sh infra/terraform/deploy.sh infra/terraform/destroy.sh
-          python3 -m unittest discover -s tests -v
+          python3 -m unittest discover -s tests -p 'test_scaffold.py' -v
 
       - name: Install and audit Python dependencies
         run: |
@@ -34,8 +34,10 @@ jobs:
           .venv/bin/python -m pip install --disable-pip-version-check \
             --requirement services/kafka_ingest/requirements.txt \
             --requirement services/ksqdb_connector/requirements.txt \
-            --requirement services/python_stream_processor/requirements.txt
+            --requirement services/python_stream_processor/requirements.txt \
+            httpx==0.28.1
           .venv/bin/python -c "import fastapi, kafka, requests, uvicorn"
+          .venv/bin/python -m unittest discover -s tests/unit -v
           .venv/bin/pip-audit --requirement services/kafka_ingest/requirements.txt
           .venv/bin/pip-audit --requirement services/ksqdb_connector/requirements.txt
           .venv/bin/pip-audit --requirement services/python_stream_processor/requirements.txt

@@ -76,6 +76,15 @@ class ScaffoldTests(unittest.TestCase):
             self.assertIn("\n  pull_request:\n", content)
             self.assertIsNone(forbidden_triggers.search(content), workflow.name)
 
+    def test_pr_checks_run_service_unit_tests(self):
+        workflow = (REPOSITORY_ROOT / ".github" / "workflows" / "pr-checks.yml").read_text()
+        self.assertIn("unittest discover -s tests/unit", workflow)
+
+    def test_terraform_helper_scripts_use_chdir(self):
+        for script_name in ("deploy.sh", "destroy.sh"):
+            script = (REPOSITORY_ROOT / "infra" / "terraform" / script_name).read_text()
+            self.assertIn('-chdir="$terraform_directory"', script, script_name)
+
 
 if __name__ == "__main__":
     unittest.main()
