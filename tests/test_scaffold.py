@@ -64,6 +64,29 @@ class ScaffoldTests(unittest.TestCase):
             for source_file in source_root.rglob("*.py"):
                 ast.parse(source_file.read_text(), filename=str(source_file))
 
+    def test_pr_checks_include_security_audits(self):
+        workflow = (REPOSITORY_ROOT / ".github" / "workflows" / "pr-checks.yml").read_text()
+        self.assertIn("pip==26.2.1", workflow)
+        self.assertIn("pip-audit", workflow)
+        self.assertIn("scripts/security_audit.sh", workflow)
+
+    def test_terraform_aws_provider_is_pinned(self):
+        main_tf = (REPOSITORY_ROOT / "infra" / "terraform" / "main.tf").read_text()
+        self.assertIn('version = "6.68.0"', main_tf)
+
+    def test_python_service_base_images_are_current(self):
+        expected_digest = (
+            "python:3.14.7-slim-trixie@"
+            "sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d"
+        )
+        for relative_path in (
+            "services/kafka_ingest/Dockerfile",
+            "services/ksqdb_connector/Dockerfile",
+            "services/python_stream_processor/Dockerfile",
+        ):
+            first_line = (REPOSITORY_ROOT / relative_path).read_text().splitlines()[0]
+            self.assertEqual(first_line, f"FROM {expected_digest}", relative_path)
+
     def test_workflows_are_pull_request_only(self):
         workflows = tuple((REPOSITORY_ROOT / ".github" / "workflows").glob("*"))
         self.assertTrue(workflows)

@@ -65,7 +65,7 @@ def ingest_data(payload: dict):
 EOF
 
 cat << 'EOF' > services/kafka_ingest/Dockerfile
-FROM python:3.14.7-slim-trixie@sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6
+FROM python:3.14.7-slim-trixie@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d
 WORKDIR /app
 COPY requirements.txt .
 RUN apt-get update \
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 EOF
 
 cat << 'EOF' > services/python_stream_processor/Dockerfile
-FROM python:3.14.7-slim-trixie@sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6
+FROM python:3.14.7-slim-trixie@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d
 WORKDIR /app
 COPY requirements.txt .
 RUN apt-get update \
@@ -199,7 +199,7 @@ if __name__ == "__main__":
 EOF
 
 cat << 'EOF' > services/ksqdb_connector/Dockerfile
-FROM python:3.14.7-slim-trixie@sha256:cad9a2c871761c413caa6fdd6441c783451e740a48aaeba60ae62a8b53525ef6
+FROM python:3.14.7-slim-trixie@sha256:51dafde81dbdb6ebde285137a295cf18a47ca95234fe388a343719cb97305b3d
 WORKDIR /app
 COPY requirements.txt .
 RUN apt-get update \

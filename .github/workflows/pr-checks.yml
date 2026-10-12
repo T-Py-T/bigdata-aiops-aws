@@ -30,7 +30,7 @@ jobs:
       - name: Install and audit Python dependencies
         run: |
           python3 -m venv .venv
-          .venv/bin/python -m pip install --disable-pip-version-check pip-audit==2.10.1
+          .venv/bin/python -m pip install --disable-pip-version-check --upgrade pip==26.2.1 pip-audit==2.10.1
           .venv/bin/python -m pip install --disable-pip-version-check \
             --requirement services/kafka_ingest/requirements.txt \
             --requirement services/ksqdb_connector/requirements.txt \
@@ -39,6 +39,16 @@ jobs:
           .venv/bin/pip-audit --requirement services/kafka_ingest/requirements.txt
           .venv/bin/pip-audit --requirement services/ksqdb_connector/requirements.txt
           .venv/bin/pip-audit --requirement services/python_stream_processor/requirements.txt
+          .venv/bin/pip-audit
+
+      - name: Audit dependencies and container bases (Trivy)
+        run: |
+          if ! command -v trivy >/dev/null 2>&1; then
+            curl -sfL "https://github.com/aquasecurity/trivy/releases/download/v0.75.0/trivy_0.75.0_Linux-64bit.tar.gz" \
+              | tar -xz -C /tmp
+            sudo mv /tmp/trivy /usr/local/bin/trivy
+          fi
+          bash scripts/security_audit.sh
 
       - name: Validate Terraform
         run: |
