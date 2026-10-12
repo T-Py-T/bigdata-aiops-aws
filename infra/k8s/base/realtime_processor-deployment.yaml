@@ -15,4 +15,4 @@ spec:
       containers:
       - name: realtime-processor
         image: "{{ REALTIME_PROCESSOR_IMAGE }}"
-        command: ["python", "realtime_processor.py"]
+        command: ["/opt/spark/bin/spark-submit", "realtime_processor.py"]
