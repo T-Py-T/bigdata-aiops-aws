@@ -36,6 +36,7 @@ done
 cat << 'EOF' > services/kafka_ingest/src/ingest.py
 import json
 import logging
+import os
 from kafka import KafkaProducer
 from fastapi import FastAPI
 
@@ -43,8 +44,9 @@ app = FastAPI()
 
 
 def create_producer():
+    broker = os.environ.get("KAFKA_BROKER", "{{ KAFKA_BROKER }}")
     return KafkaProducer(
-        bootstrap_servers=["{{ KAFKA_BROKER }}"],
+        bootstrap_servers=[broker],
         value_serializer=lambda value: json.dumps(value).encode(),
     )
 
@@ -90,13 +92,15 @@ EOF
 cat << 'EOF' > services/python_stream_processor/src/processor.py
 import json
 import logging
+import os
 from kafka import KafkaConsumer
 
 
 def create_consumer():
+    broker = os.environ.get("KAFKA_BROKER", "{{ KAFKA_BROKER }}")
     return KafkaConsumer(
         "ingest_topic",
-        bootstrap_servers=["{{ KAFKA_BROKER }}"],
+        bootstrap_servers=[broker],
         value_deserializer=lambda message: json.loads(message.decode("utf-8")),
     )
 
@@ -134,11 +138,13 @@ from pyspark.sql import SparkSession
 
 def main():
     spark = SparkSession.builder.appName("SparkBatchProcessor").getOrCreate()
-    s3_bucket = "s3a://{{ S3_BUCKET }}"
-    df = spark.read.parquet(s3_bucket)
-    df_transformed = df.filter("column IS NOT NULL")
-    df_transformed.show()
-    spark.stop()
+    try:
+        s3_bucket = "s3a://{{ S3_BUCKET }}"
+        df = spark.read.parquet(s3_bucket)
+        df_transformed = df.filter("column IS NOT NULL")
+        df_transformed.show()
+    finally:
+        spark.stop()
 
 if __name__ == "__main__":
     main()
@@ -160,10 +166,13 @@ from pyspark.sql import SparkSession
 
 def main():
     spark = SparkSession.builder.appName("RealtimeProcessor").getOrCreate()
-    s3_bucket = "s3a://{{ S3_BUCKET }}"
-    df = spark.readStream.format("parquet").load(s3_bucket)
-    query = df.writeStream.format("console").start()
-    query.awaitTermination()
+    try:
+        s3_bucket = "s3a://{{ S3_BUCKET }}"
+        df = spark.readStream.format("parquet").load(s3_bucket)
+        query = df.writeStream.format("console").start()
+        query.awaitTermination()
+    finally:
+        spark.stop()
 
 if __name__ == "__main__":
     main()
