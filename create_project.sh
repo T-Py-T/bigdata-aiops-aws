@@ -161,6 +161,7 @@ EOF
 cat << 'EOF' > services/realtime_processor/src/realtime_processor.py
 from pyspark.sql import SparkSession
 
+
 def main():
     spark = SparkSession.builder.appName("RealtimeProcessor").getOrCreate()
     s3_bucket = "s3a://{{ S3_BUCKET }}"
