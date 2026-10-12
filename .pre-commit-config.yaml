@@ -3,7 +3,7 @@ repos:
     hooks:
       - id: scaffold-tests
         name: scaffold tests
-        entry: python3 -m unittest discover -s tests -v
+        entry: bash -c 'python3 -m unittest discover -s tests -p test_scaffold.py -v; if [ -x .venv/bin/python ]; then .venv/bin/python -m unittest discover -s tests/unit -v; fi'
         language: system
         pass_filenames: false
       - id: shell-syntax

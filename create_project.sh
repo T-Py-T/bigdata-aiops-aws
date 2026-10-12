@@ -93,11 +93,15 @@ import logging
 from kafka import KafkaConsumer
 
 
+def decode_kafka_value(raw_message: bytes):
+    return json.loads(raw_message.decode("utf-8"))
+
+
 def create_consumer():
     return KafkaConsumer(
         "ingest_topic",
         bootstrap_servers=["{{ KAFKA_BROKER }}"],
-        value_deserializer=lambda message: json.loads(message.decode("utf-8")),
+        value_deserializer=decode_kafka_value,
     )
 
 def process_message(message):
@@ -182,7 +186,7 @@ EOF
 
 cat << 'EOF' > services/ksqdb_connector/src/connector.py
 import logging
-import requests
+
 
 def push_to_pinot(data):
     logging.info("Pushing data to Pinot: %s", data)
