@@ -23,5 +23,6 @@ pkg/
 .terraform
 .terraform/*
 .venv/
+.venv-ci/
 *.tfvars
 release/wi-kubernetes-manifests.yaml
