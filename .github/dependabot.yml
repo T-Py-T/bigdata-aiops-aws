@@ -15,27 +15,47 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 3
+    groups:
+      pip-services:
+        patterns:
+          - "*"
 
   - package-ecosystem: pip
     directory: /services/ksqdb_connector
     schedule:
       interval: weekly
     open-pull-requests-limit: 3
+    groups:
+      pip-services:
+        patterns:
+          - "*"
 
   - package-ecosystem: pip
     directory: /services/python_stream_processor
     schedule:
       interval: weekly
     open-pull-requests-limit: 3
+    groups:
+      pip-services:
+        patterns:
+          - "*"
 
   - package-ecosystem: terraform
     directory: /infra/terraform
     schedule:
       interval: weekly
     open-pull-requests-limit: 3
+    groups:
+      terraform-providers:
+        patterns:
+          - "*"
 
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
     open-pull-requests-limit: 3
+    groups:
+      github-actions:
+        patterns:
+          - "*"
