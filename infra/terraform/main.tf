@@ -3,7 +3,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "6.67.0"
+      version = "6.69.1"
     }
   }
 }
@@ -35,7 +35,7 @@ module "vpc" {
 # Create an EKS cluster using the official AWS EKS module
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
-  version = "21.26.0"
+  version = "21.29.0"
 
   name               = var.cluster_name
   kubernetes_version = var.cluster_version
