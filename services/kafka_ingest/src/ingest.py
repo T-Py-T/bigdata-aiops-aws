@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from kafka import KafkaProducer
 from fastapi import FastAPI
 
@@ -7,8 +8,9 @@ app = FastAPI()
 
 
 def create_producer():
+    broker = os.environ.get("KAFKA_BROKER", "{{ KAFKA_BROKER }}")
     return KafkaProducer(
-        bootstrap_servers=["{{ KAFKA_BROKER }}"],
+        bootstrap_servers=[broker],
         value_serializer=lambda value: json.dumps(value).encode(),
     )
 
