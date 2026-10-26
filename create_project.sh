@@ -36,15 +36,20 @@ done
 cat << 'EOF' > services/kafka_ingest/src/ingest.py
 import json
 import logging
+import os
 from kafka import KafkaProducer
 from fastapi import FastAPI
 
 app = FastAPI()
 
 
+def kafka_bootstrap_servers():
+    return [os.environ.get("KAFKA_BROKER", "{{ KAFKA_BROKER }}")]
+
+
 def create_producer():
     return KafkaProducer(
-        bootstrap_servers=["{{ KAFKA_BROKER }}"],
+        bootstrap_servers=kafka_bootstrap_servers(),
         value_serializer=lambda value: json.dumps(value).encode(),
     )
 
@@ -90,13 +95,18 @@ EOF
 cat << 'EOF' > services/python_stream_processor/src/processor.py
 import json
 import logging
+import os
 from kafka import KafkaConsumer
+
+
+def kafka_bootstrap_servers():
+    return [os.environ.get("KAFKA_BROKER", "{{ KAFKA_BROKER }}")]
 
 
 def create_consumer():
     return KafkaConsumer(
         "ingest_topic",
-        bootstrap_servers=["{{ KAFKA_BROKER }}"],
+        bootstrap_servers=kafka_bootstrap_servers(),
         value_deserializer=lambda message: json.loads(message.decode("utf-8")),
     )
 
@@ -287,6 +297,20 @@ spec:
             value: "{{ KAFKA_BROKER }}"
 EOF
 
+# kafka_ingest service
+cat << 'EOF' > infra/k8s/base/kafka_ingest-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-ingest
+spec:
+  selector:
+    app: kafka-ingest
+  ports:
+  - port: 8000
+    targetPort: 8000
+EOF
+
 # python_stream_processor deployment
 cat << 'EOF' > infra/k8s/base/python_stream_processor-deployment.yaml
 apiVersion: apps/v1
@@ -307,6 +331,9 @@ spec:
       - name: python-stream-processor
         image: "{{ PYTHON_STREAM_PROCESSOR_IMAGE }}"
         command: ["python", "processor.py"]
+        env:
+          - name: KAFKA_BROKER
+            value: "{{ KAFKA_BROKER }}"
 EOF
 
 # spark_batch_processor deployment
@@ -517,6 +544,7 @@ EOF
 cat << 'EOF' > infra/k8s/base/kustomization.yaml
 resources:
   - kafka_ingest-deployment.yaml
+  - kafka_ingest-service.yaml
   - python_stream_processor-deployment.yaml
   - spark_batch_processor-deployment.yaml
   - realtime_processor-deployment.yaml
