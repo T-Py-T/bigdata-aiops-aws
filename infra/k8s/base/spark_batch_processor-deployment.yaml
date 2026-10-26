@@ -15,4 +15,4 @@ spec:
       containers:
       - name: spark-batch-processor
         image: "{{ SPARK_BATCH_PROCESSOR_IMAGE }}"
-        command: ["python", "batch_processor.py"]
+        command: ["/opt/spark/bin/spark-submit", "batch_processor.py"]

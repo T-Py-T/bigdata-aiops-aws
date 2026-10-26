@@ -328,7 +328,7 @@ spec:
       containers:
       - name: spark-batch-processor
         image: "{{ SPARK_BATCH_PROCESSOR_IMAGE }}"
-        command: ["python", "batch_processor.py"]
+        command: ["/opt/spark/bin/spark-submit", "batch_processor.py"]
 EOF
 
 # realtime_processor deployment
@@ -350,7 +350,7 @@ spec:
       containers:
       - name: realtime-processor
         image: "{{ REALTIME_PROCESSOR_IMAGE }}"
-        command: ["python", "realtime_processor.py"]
+        command: ["/opt/spark/bin/spark-submit", "realtime_processor.py"]
 EOF
 
 # ksqdb_connector deployment
@@ -717,7 +717,11 @@ dag = DAG(
 
 task_ingest = BashOperator(
     task_id='run_ingest',
-    bash_command='curl -X POST http://kafka-ingest:8000/ingest -d \'{"sample": "data"}\'',
+    bash_command=(
+        'curl -sSf -X POST http://kafka-ingest:8000/ingest '
+        '-H "Content-Type: application/json" '
+        '-d \'{"sample": "data"}\''
+    ),
     dag=dag
 )
 
